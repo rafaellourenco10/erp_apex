@@ -44,8 +44,9 @@ class ApiService {
     final bodyText = _extractMessage(data) ?? e.message ?? '';
 
     if (bodyText.contains('ORA-20001')) {
-      return const ApiException(
-        'Estoque insuficiente para este produto.',
+      final mensagem = _extractOraMessage(bodyText, 'ORA-20001');
+      return ApiException(
+        mensagem ?? 'Estoque insuficiente para este produto.',
         estoqueInsuficiente: true,
       );
     }
@@ -66,6 +67,16 @@ class ApiService {
               : 'Ocorreu um erro inesperado. Tente novamente.',
         );
     }
+  }
+
+  /// Extracts the text after `ORA-<code>:` from a raw Oracle error body,
+  /// e.g. `'ORA-20001: Estoque insuficiente para o produto "X".'` becomes
+  /// `'Estoque insuficiente para o produto "X".'`. Returns null if the
+  /// message has no readable text after the code (e.g. stack trace only).
+  String? _extractOraMessage(String bodyText, String oraCode) {
+    final match = RegExp('$oraCode:\\s*(.+)').firstMatch(bodyText);
+    final texto = match?.group(1)?.split('\n').first.trim();
+    return (texto != null && texto.isNotEmpty) ? texto : null;
   }
 
   String? _extractMessage(dynamic data) {

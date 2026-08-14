@@ -8,19 +8,20 @@ class PedidoService {
 
   PedidoService(this._api);
 
-  /// Creates the order header and returns the generated `id_pedido`.
-  Future<int> criarPedido({required int idCliente}) async {
-    final data = await _api.post(ApiConstants.pedidos, {
+  /// Creates the order header and all its items in a single atomic request
+  /// (`POST /pedidos_completo`). The backend wraps the insert in one
+  /// transaction, so a failure on any item (e.g. insufficient stock) rolls
+  /// back the whole order instead of leaving a partial one behind.
+  /// Returns the generated `id_pedido`.
+  Future<int> criarPedidoCompleto({
+    required int idCliente,
+    required List<ItemPedido> itens,
+  }) async {
+    final data = await _api.post(ApiConstants.pedidosCompleto, {
       'id_cliente': idCliente,
+      'itens': itens.map((item) => item.toJson()).toList(),
     });
     return data['id_pedido_gerado'] as int;
-  }
-
-  /// Inserts a single order item and returns the generated `id_item`.
-  Future<int> adicionarItem(int idPedido, ItemPedido item) async {
-    final data =
-        await _api.post(ApiConstants.itensPedido, item.toJson(idPedido));
-    return data['id_item_gerado'] as int;
   }
 
   /// Fetches the order history (most recent first).

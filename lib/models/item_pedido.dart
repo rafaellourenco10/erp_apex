@@ -9,9 +9,11 @@ class ItemPedido {
 
   double get subtotal => produto.preco * quantidade;
 
-  Map<String, dynamic> toJson(int idPedido) {
+  /// Serializa como uma entrada do array `itens` de `POST /pedidos_completo`.
+  /// `id_pedido` não entra aqui: é gerado pelo backend dentro da mesma
+  /// transação que grava este item.
+  Map<String, dynamic> toJson() {
     return {
-      'id_pedido': idPedido,
       'id_produto': produto.idProduto,
       'quantidade': quantidade,
       'preco_unitario': produto.preco,

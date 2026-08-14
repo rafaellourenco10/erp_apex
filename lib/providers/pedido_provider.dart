@@ -63,9 +63,10 @@ class PedidoProvider extends ChangeNotifier {
     setQuantidade(produto, quantidadeDe(produto) - 1);
   }
 
-  /// Submits the order: creates the header then inserts each item in sequence.
-  /// Returns true on full success; on failure, [submitError] explains why
-  /// (including a friendly message for ORA-20001 insufficient-stock errors).
+  /// Submits the order atomically via `POST /pedidos_completo`: the backend
+  /// creates the header and all items in a single transaction, so a failure
+  /// (e.g. ORA-20001 insufficient stock) leaves nothing partially saved.
+  /// Returns true on success; on failure, [submitError] explains why.
   Future<bool> confirmarPedido() async {
     if (_clienteSelecionado == null || itens.isEmpty) return false;
 
@@ -74,22 +75,10 @@ class PedidoProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final idPedido =
-          await _service.criarPedido(idCliente: _clienteSelecionado!.idCliente);
-
-      for (final item in itens) {
-        try {
-          await _service.adicionarItem(idPedido, item);
-        } on ApiException catch (e) {
-          _submitError = e.estoqueInsuficiente
-              ? 'Estoque insuficiente para "${item.produto.nome}". Ajuste a quantidade e tente novamente.'
-              : e.message;
-          _isSubmitting = false;
-          notifyListeners();
-          return false;
-        }
-      }
-
+      final idPedido = await _service.criarPedidoCompleto(
+        idCliente: _clienteSelecionado!.idCliente,
+        itens: itens,
+      );
       _idPedidoCriado = idPedido;
       _isSubmitting = false;
       notifyListeners();
