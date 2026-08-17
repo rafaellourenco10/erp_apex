@@ -7,6 +7,7 @@ import '../../core/theme/app_theme.dart';
 import '../../core/utils/formatters.dart';
 import '../../core/widgets/state_views.dart';
 import '../../models/pedido.dart';
+import '../../providers/historico_pedidos_provider.dart';
 import '../../services/pedido_service.dart';
 
 class DetalhePedidoScreen extends StatefulWidget {
@@ -20,12 +21,15 @@ class DetalhePedidoScreen extends StatefulWidget {
 
 class _DetalhePedidoScreenState extends State<DetalhePedidoScreen> {
   late Future<List<PedidoItemResumo>> _itensFuture;
+  late Pedido _pedido;
+  bool _isCancelando = false;
 
-  Pedido get pedido => widget.pedido;
+  Pedido get pedido => _pedido;
 
   @override
   void initState() {
     super.initState();
+    _pedido = widget.pedido;
     _carregarItens();
   }
 
@@ -53,11 +57,27 @@ class _DetalhePedidoScreenState extends State<DetalhePedidoScreen> {
         ],
       ),
     );
-    if (confirmar == true && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Pedido #${pedido.idPedido} cancelado.')),
-      );
-    }
+    if (confirmar != true || !context.mounted) return;
+
+    setState(() => _isCancelando = true);
+    final historico = context.read<HistoricoPedidosProvider>();
+    final sucesso = await historico.cancelarPedido(pedido.idPedido);
+    if (!context.mounted) return;
+
+    setState(() {
+      _isCancelando = false;
+      if (sucesso) _pedido = _pedido.copyWith(status: PedidoStatus.cancelado);
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          sucesso
+              ? 'Pedido #${pedido.idPedido} cancelado.'
+              : historico.cancelError ?? 'Não foi possível cancelar o pedido.',
+        ),
+      ),
+    );
   }
 
   @override
@@ -111,12 +131,21 @@ class _DetalhePedidoScreenState extends State<DetalhePedidoScreen> {
                     SizedBox(
                       height: 56,
                       child: ElevatedButton.icon(
-                        onPressed: () => _confirmarCancelamento(context),
+                        onPressed: _isCancelando
+                            ? null
+                            : () => _confirmarCancelamento(context),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.error,
                           foregroundColor: Colors.white,
                         ),
-                        icon: const Icon(Icons.cancel_rounded),
+                        icon: _isCancelando
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                    strokeWidth: 2.5, color: Colors.white),
+                              )
+                            : const Icon(Icons.cancel_rounded),
                         label: const Text('Cancelar Pedido'),
                       ),
                     ),

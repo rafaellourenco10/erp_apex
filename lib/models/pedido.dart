@@ -86,12 +86,12 @@ class Pedido {
     );
   }
 
-  Pedido copyWith({List<PedidoItemResumo>? itens}) {
+  Pedido copyWith({List<PedidoItemResumo>? itens, PedidoStatus? status}) {
     return Pedido(
       idPedido: idPedido,
       clienteNome: clienteNome,
       data: data,
-      status: status,
+      status: status ?? this.status,
       valorTotal: valorTotal,
       itens: itens ?? this.itens,
     );

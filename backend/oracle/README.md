@@ -25,6 +25,8 @@ Levamos um bom tempo pra fazer esse endpoint funcionar. Duas pegadinhas que **v�
 | 1 | [`01_criar_pedido_completo.sql`](01_criar_pedido_completo.sql) | Cria a procedure `criar_pedido_completo`, que insere cabeçalho + itens do pedido em uma única transação (rollback automático em caso de erro, ex.: estoque insuficiente) |
 | 2 | [`02_ords_endpoint_pedidos_completo.sql`](02_ords_endpoint_pedidos_completo.sql) | Registra o endpoint `POST /pedidos_completo` no módulo `erp.api` já existente, via `ORDS.DEFINE_TEMPLATE`/`DEFINE_HANDLER` — inclui a conversão de `:body` de BLOB para CLOB. Se o seu ambiente não permitir rodar esses pacotes, use as instruções manuais no fim do arquivo. |
 | 3 *(opcional)* | [`03_melhorar_mensagem_estoque_OPCIONAL.sql`](03_melhorar_mensagem_estoque_OPCIONAL.sql) | Reescreve `TRG_ATUALIZA_ESTOQUE` só para incluir o nome do produto na mensagem de `ORA-20001`. Não muda comportamento — pode pular sem prejuízo. |
+| 4 | [`04_cancelar_pedido.sql`](04_cancelar_pedido.sql) | Cria a procedure `cancelar_pedido`, que devolve o estoque dos itens e muda o status para `CANCELADO` — só permite cancelar pedidos `PENDENTE`. |
+| 5 | [`05_ords_endpoint_cancelar_pedido.sql`](05_ords_endpoint_cancelar_pedido.sql) | Registra `POST /pedidos/:id/cancelar` no módulo `erp.api`. Não precisa de `:body` (o id vem da URL), então não esbarra na pegadinha do BLOB/CLOB. |
 
 ## Pré-requisitos — confirmados em 2026-08-14 via `user_tab_columns`/`user_triggers`
 
@@ -62,4 +64,5 @@ Para testar o rollback, use um `id_produto` com estoque menor que a `quantidade`
 
 ## Confirmado funcionando
 
-`id_pedido_gerado: 241`, testado em 2026-08-14 via Postman. Rollback ainda não testado explicitamente — vale testar antes de considerar o item 100% fechado.
+- `POST /pedidos_completo`: `id_pedido_gerado: 241`, testado em 2026-08-14 via Postman. Rollback ainda não testado explicitamente — vale testar antes de considerar o item 100% fechado.
+- `POST /pedidos/:id/cancelar`: testado em 2026-08-15 via Postman, caminho feliz e validação. Cancelar pedido `PENDENTE` → `200 OK`, `{"id_pedido": 221, "status": "CANCELADO"}`. Tentar cancelar de novo o mesmo pedido (já `CANCELADO`) → `ORA-20003: Somente pedidos com status PENDENTE podem ser cancelados. Status atual: CANCELADO.` Funcionou de primeira, sem precisar do processo de depuração do item anterior.

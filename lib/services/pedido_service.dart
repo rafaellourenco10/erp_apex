@@ -44,4 +44,11 @@ class PedidoService {
         .map((e) => PedidoItemResumo.fromJson(e as Map<String, dynamic>))
         .toList();
   }
+
+  /// Cancels a pending order (`POST /pedidos/{id}/cancelar`). The backend
+  /// restores the stock of each item and only allows this for orders whose
+  /// status is still PENDENTE — anything else throws an ApiException.
+  Future<void> cancelarPedido(int idPedido) async {
+    await _api.post('${ApiConstants.pedidos}/$idPedido/cancelar', {});
+  }
 }
