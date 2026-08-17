@@ -38,7 +38,7 @@ class _MeusPedidosScreenState extends State<MeusPedidosScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(title: const Text('Meus Pedidos')),
+      appBar: AppBar(title: const Text('ERP Simples')),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
