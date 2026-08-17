@@ -38,7 +38,7 @@ class _MeusPedidosScreenState extends State<MeusPedidosScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(title: const Text('SalesPro')),
+      appBar: AppBar(title: const Text('Meus Pedidos')),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -56,22 +56,28 @@ class _MeusPedidosScreenState extends State<MeusPedidosScreen> {
               ),
             ),
             SizedBox(
-              height: 48,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.marginMain, vertical: AppSpacing.stackMd),
+              height: 56,
+              child: Stack(
                 children: [
-                  _FilterChip(label: 'Todos', selected: _filtro == null, onTap: () => setState(() => _filtro = null)),
-                  const SizedBox(width: 8),
-                  for (final status in PedidoStatus.values) ...[
-                    _FilterChip(
-                      label: status.label,
-                      selected: _filtro == status,
-                      onTap: () => setState(() => _filtro = status),
-                    ),
-                    const SizedBox(width: 8),
-                  ],
+                  ListView(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.marginMain, vertical: AppSpacing.stackMd),
+                    children: [
+                      _FilterChip(label: 'Todos', selected: _filtro == null, onTap: () => setState(() => _filtro = null)),
+                      const SizedBox(width: 8),
+                      for (final status in PedidoStatus.values) ...[
+                        _FilterChip(
+                          label: status.label,
+                          selected: _filtro == status,
+                          onTap: () => setState(() => _filtro = status),
+                        ),
+                        const SizedBox(width: 8),
+                      ],
+                    ],
+                  ),
+                  const _EdgeFade(alignment: Alignment.centerLeft),
+                  const _EdgeFade(alignment: Alignment.centerRight),
                 ],
               ),
             ),
@@ -118,6 +124,37 @@ class _MeusPedidosScreenState extends State<MeusPedidosScreen> {
   }
 }
 
+/// Soft fade at one edge of the horizontal filter chips, hinting there's
+/// more to scroll instead of abruptly clipping the chip mid-label.
+class _EdgeFade extends StatelessWidget {
+  final Alignment alignment;
+
+  const _EdgeFade({required this.alignment});
+
+  @override
+  Widget build(BuildContext context) {
+    final fromLeft = alignment == Alignment.centerLeft;
+    return Positioned(
+      left: fromLeft ? 0 : null,
+      right: fromLeft ? null : 0,
+      top: 0,
+      bottom: 0,
+      child: IgnorePointer(
+        child: Container(
+          width: 24,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: fromLeft ? Alignment.centerLeft : Alignment.centerRight,
+              end: fromLeft ? Alignment.centerRight : Alignment.centerLeft,
+              colors: [AppColors.background, AppColors.background.withValues(alpha: 0)],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _FilterChip extends StatelessWidget {
   final String label;
   final bool selected;
@@ -135,7 +172,13 @@ class _FilterChip extends StatelessWidget {
         decoration: BoxDecoration(
           color: selected ? AppColors.onTertiaryFixed : AppColors.surfaceContainer,
           borderRadius: BorderRadius.circular(AppRadius.full),
-          border: selected ? null : Border.all(color: AppColors.outlineVariant),
+          // Always present (transparent when selected) so the border width
+          // doesn't change the chip's total size — a Border.all() that
+          // only exists on the unselected state makes that chip a couple
+          // pixels taller than the selected one, and the fixed-height row
+          // clips it top/bottom.
+          border: Border.all(
+              color: selected ? Colors.transparent : AppColors.outlineVariant),
         ),
         child: Text(
           label,
