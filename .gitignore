@@ -46,3 +46,10 @@ app.*.map.json
 
 # Claude Code local settings (per-machine, not for version control)
 .claude/settings.local.json
+
+# Ruflo local secrets and runtime data
+.env
+.env.local
+.env.*.local
+.claude-flow/
+.swarm/

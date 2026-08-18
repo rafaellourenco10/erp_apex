@@ -2,6 +2,8 @@
 
 Scripts para aplicar manualmente no workspace `erp_rafaellourenco` (SQL Workshop → SQL Commands, ou App Builder → SQL Workshop).
 
+**Modelo de dados completo (tabelas, colunas, FKs, triggers):** ver [`SCHEMA.md`](SCHEMA.md), extraído do dicionário de dados via [`schema_queries.sql`](schema_queries.sql).
+
 Eu (Claude) não tenho acesso ao seu banco Oracle — esses scripts foram escritos com base no contrato de API já observado no app (`GET/POST /pedidos`, `GET/POST /itens_pedido`) e em suposições razoáveis sobre o schema. **Revise os pontos marcados com `-- AJUSTE:` antes de rodar.**
 
 > [!STATUS] `POST /pedidos_completo` confirmado funcionando em 2026-08-14 (`id_pedido_gerado: 241`).
