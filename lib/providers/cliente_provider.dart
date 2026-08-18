@@ -45,4 +45,13 @@ class ClienteProvider extends ChangeNotifier {
     _searchQuery = query;
     notifyListeners();
   }
+
+  /// Looks up a client by id across the full (unfiltered) list — used by
+  /// "repetir pedido" to find the client regardless of an active search.
+  Cliente? buscarPorId(int idCliente) {
+    for (final cliente in _clientes) {
+      if (cliente.idCliente == idCliente) return cliente;
+    }
+    return null;
+  }
 }

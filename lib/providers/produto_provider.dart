@@ -45,4 +45,14 @@ class ProdutoProvider extends ChangeNotifier {
     _searchQuery = query;
     notifyListeners();
   }
+
+  /// Looks up a product by id across the full (unfiltered) list — used by
+  /// "repetir pedido" to find current stock/price regardless of an active
+  /// search.
+  Produto? buscarPorId(int idProduto) {
+    for (final produto in _produtos) {
+      if (produto.idProduto == idProduto) return produto;
+    }
+    return null;
+  }
 }

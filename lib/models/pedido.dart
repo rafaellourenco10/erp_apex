@@ -36,11 +36,13 @@ PedidoStatus pedidoStatusFromString(String? raw) {
 }
 
 class PedidoItemResumo {
+  final int idProduto;
   final String nome;
   final int quantidade;
   final double precoUnitario;
 
   const PedidoItemResumo({
+    required this.idProduto,
     required this.nome,
     required this.quantidade,
     required this.precoUnitario,
@@ -50,6 +52,7 @@ class PedidoItemResumo {
 
   factory PedidoItemResumo.fromJson(Map<String, dynamic> json) {
     return PedidoItemResumo(
+      idProduto: json['id_produto'] as int,
       nome: json['nome_produto'] as String,
       quantidade: json['quantidade'] as int,
       precoUnitario: (json['preco_unitario'] as num).toDouble(),
@@ -61,6 +64,7 @@ class PedidoItemResumo {
 /// GET /itens_pedido?id_pedido=X (line items) for the detail screen.
 class Pedido {
   final int idPedido;
+  final int idCliente;
   final String clienteNome;
   final DateTime data;
   final PedidoStatus status;
@@ -69,6 +73,7 @@ class Pedido {
 
   const Pedido({
     required this.idPedido,
+    required this.idCliente,
     required this.clienteNome,
     required this.data,
     required this.status,
@@ -77,9 +82,11 @@ class Pedido {
   });
 
   factory Pedido.fromJson(Map<String, dynamic> json) {
+    final idCliente = json['id_cliente'] as int;
     return Pedido(
       idPedido: json['id_pedido'] as int,
-      clienteNome: json['cliente_nome'] as String? ?? 'Cliente #${json['id_cliente']}',
+      idCliente: idCliente,
+      clienteNome: json['cliente_nome'] as String? ?? 'Cliente #$idCliente',
       data: DateTime.parse(json['data_pedido'] as String),
       status: pedidoStatusFromString(json['status'] as String?),
       valorTotal: (json['valor_total'] as num).toDouble(),
@@ -89,6 +96,7 @@ class Pedido {
   Pedido copyWith({List<PedidoItemResumo>? itens, PedidoStatus? status}) {
     return Pedido(
       idPedido: idPedido,
+      idCliente: idCliente,
       clienteNome: clienteNome,
       data: data,
       status: status ?? this.status,
