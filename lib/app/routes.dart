@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../screens/clientes/clientes_screen.dart';
+import '../screens/dashboard/dashboard_screen.dart';
 import '../screens/home/home_screen.dart';
 import '../screens/login/login_screen.dart';
 import '../screens/meus_pedidos/meus_pedidos_screen.dart';
@@ -22,6 +23,7 @@ class AppRoutes {
   static const String novoPedidoConfirmacao = '/novo-pedido/confirmacao';
   static const String pedidoSucesso = '/pedido-sucesso';
   static const String meusPedidos = '/meus-pedidos';
+  static const String dashboard = '/dashboard';
 
   static Map<String, WidgetBuilder> get routes => {
         login: (_) => const LoginScreen(),
@@ -33,5 +35,6 @@ class AppRoutes {
         novoPedidoConfirmacao: (_) => const ConfirmacaoScreen(),
         pedidoSucesso: (_) => const PedidoSucessoScreen(),
         meusPedidos: (_) => const MeusPedidosScreen(),
+        dashboard: (_) => const DashboardScreen(),
       };
 }

@@ -9,4 +9,5 @@ class ApiConstants {
   static const String pedidos = '/pedidos';
   static const String pedidosCompleto = '/pedidos_completo';
   static const String itensPedido = '/itens_pedido';
+  static const String caminhoes = '/caminhoes';
 }

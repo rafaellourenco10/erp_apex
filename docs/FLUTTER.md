@@ -15,13 +15,13 @@ lib/
 │   ├── theme/                         # app_theme.dart, app_text_styles.dart
 │   ├── utils/                         # formatters.dart (moeda/data/telefone)
 │   └── widgets/                       # app_bottom_nav_bar.dart, state_views.dart (Loading/Error/Empty)
-├── models/                            # cliente.dart, produto.dart, pedido.dart, item_pedido.dart
+├── models/                            # cliente.dart, produto.dart, pedido.dart, item_pedido.dart, caminhao.dart
 ├── providers/                         # um ChangeNotifier por área (ver tabela abaixo)
 ├── services/                          # api_service.dart (Dio) + um service por entidade
-└── screens/                           # login/, home/, clientes/, produtos/, novo_pedido/, meus_pedidos/, pedido_sucesso/
+└── screens/                           # login/, home/, clientes/, produtos/, novo_pedido/, meus_pedidos/, pedido_sucesso/, dashboard/
 ```
 
-~35 arquivos `.dart`. **Não existe nada de `Fornecedores`** (model/service/provider/tela) apesar de a tabela `FORNECEDORES` existir no banco — é a lacuna mais visível entre banco e app hoje.
+~40 arquivos `.dart`. **Não existe nada de `Fornecedores`** (model/service/provider/tela) apesar de a tabela `FORNECEDORES` existir no banco — é a lacuna mais visível entre banco e app hoje.
 
 ## Gerenciamento de estado
 
@@ -34,6 +34,7 @@ lib/
 | `ProdutoProvider` | Lista de produtos, busca, loading/error |
 | `PedidoProvider` | Fluxo "Novo Pedido": cliente selecionado, carrinho, submissão |
 | `HistoricoPedidosProvider` | "Meus Pedidos": lista, cancelamento com atualização otimista |
+| `CaminhaoProvider` | Frota (Dashboard): lista de caminhões, loading/error, atualização de status com atualização otimista |
 | `Provider<PedidoService>` | Service exposto direto (sem ChangeNotifier), usado por telas que buscam dados sem passar por outro provider |
 
 Padrão repetido em todos: `carregar()` → `_isLoading=true` → chama service → captura `ApiException` (mensagem amigável) ou erro genérico → `_isLoading=false` + `notifyListeners()`.
@@ -53,6 +54,8 @@ https://oracleapex.com/ords/erp_rafaellourenco/erp
 | GET | `/pedidos` | Histórico de pedidos |
 | GET | `/itens_pedido?id_pedido={id}` | Itens de um pedido (tela de detalhe) |
 | POST | `/pedidos/{id}/cancelar` | Cancela pedido pendente |
+| GET | `/caminhoes` | Lista a frota (`CaminhaoService`), pro Dashboard |
+| POST | `/caminhoes/{id}/status` | Atualiza o status de um caminhão (`CaminhaoService.atualizarStatus`) — contrato fechado com o backend, ainda sem uso na UI (só exibição por enquanto) |
 
 - Respostas GET seguem o envelope padrão ORDS `{"items": [...]}`; parsing manual (`Model.fromJson`), sem `json_serializable`/`freezed`.
 - Tratamento de erro centralizado em `ApiService._mapError`: extrai mensagem do corpo, trata timeout/conexão, e tem um caso especial pra `ORA-20001` (estoque insuficiente) — extrai a mensagem de negócio do Oracle via regex e marca `ApiException(estoqueInsuficiente: true)`.
@@ -67,6 +70,7 @@ https://oracleapex.com/ords/erp_rafaellourenco/erp
 | `Pedido` | `PEDIDOS` (+ join `CLIENTES` p/ nome) | `PedidoStatus` enum: `pendente, aprovado, faturado, entregue, cancelado` |
 | `PedidoItemResumo` | `ITENS_PEDIDO` (+ join `PRODUTOS` p/ nome) | — |
 | `ItemPedido` | *(não persistido)* | Item do carrinho em memória durante o fluxo de novo pedido |
+| `Caminhao` | `CAMINHOES` | `CaminhaoStatus` enum: `livre, emCarga, emRota` — backend criado em paralelo, contrato fechado (`GET /caminhoes`, `POST /caminhoes/{id}/status`) |
 | — | `FORNECEDORES` | **Sem model correspondente** |
 
 ## Telas e navegação
@@ -76,13 +80,14 @@ Rotas nomeadas centralizadas em `AppRoutes`, com uma exceção (ver Pendências 
 | Tela | Rota | Papel |
 |---|---|---|
 | `LoginScreen` | `/` | Login mock |
-| `HomeScreen` | `/home` | Menu com 4 atalhos |
+| `HomeScreen` | `/home` | Menu com 5 atalhos |
 | `ClientesScreen` | `/clientes` | Lista + busca |
 | `ProdutosScreen` | `/produtos` | Lista com badge de estoque baixo |
 | `SelecionarClienteScreen` → `AdicionarProdutosScreen` → `ConfirmacaoScreen` | `/novo-pedido/*` | Wizard de 3 passos pra criar pedido |
 | `PedidoSucessoScreen` | `/pedido-sucesso` | Confirmação pós-criação |
 | `MeusPedidosScreen` | `/meus-pedidos` | Histórico com filtro por status |
 | `DetalhePedidoScreen` | *(sem rota nomeada)* | Detalhe, cancelar, "repetir pedido" |
+| `DashboardScreen` | `/dashboard` | KPIs (pedidos pendentes, valor em aberto) calculados client-side a partir de `HistoricoPedidosProvider` + seção "Frota" (`CaminhaoProvider`), só exibição por enquanto |
 
 ## Dependências principais (`pubspec.yaml`)
 
