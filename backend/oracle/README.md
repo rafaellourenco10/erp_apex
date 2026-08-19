@@ -29,6 +29,20 @@ Levamos um bom tempo pra fazer esse endpoint funcionar. Duas pegadinhas que **v�
 | 3 *(opcional)* | [`03_melhorar_mensagem_estoque_OPCIONAL.sql`](03_melhorar_mensagem_estoque_OPCIONAL.sql) | Reescreve `TRG_ATUALIZA_ESTOQUE` só para incluir o nome do produto na mensagem de `ORA-20001`. Não muda comportamento — pode pular sem prejuízo. |
 | 4 | [`04_cancelar_pedido.sql`](04_cancelar_pedido.sql) | Cria a procedure `cancelar_pedido`, que devolve o estoque dos itens e muda o status para `CANCELADO` — só permite cancelar pedidos `PENDENTE`. |
 | 5 | [`05_ords_endpoint_cancelar_pedido.sql`](05_ords_endpoint_cancelar_pedido.sql) | Registra `POST /pedidos/:id/cancelar` no módulo `erp.api`. Não precisa de `:body` (o id vem da URL), então não esbarra na pegadinha do BLOB/CLOB. |
+| 6 | [`06_criar_caminhoes.sql`](06_criar_caminhoes.sql) | Cria a tabela `CAMINHOES` (frota), com `STATUS` restrito a `LIVRE`/`EM_CARGA`/`EM_ROTA`, para o vendedor ver no dashboard do app quais caminhões estão disponíveis. |
+| 7 | [`07_ords_endpoint_caminhoes.sql`](07_ords_endpoint_caminhoes.sql) | Registra `GET /caminhoes` e `POST /caminhoes/:id/status` no módulo `erp.api`. O segundo usa bind automático de `:status` a partir do corpo JSON (objeto simples/plano), sem precisar tratar `:body` como BLOB — inclui fallback comentado com `DBMS_LOB.CONVERTTOCLOB` caso o bind automático não funcione no ambiente. |
+| 8 | [`08_corrige_erro_handling_cancelar_pedido.sql`](08_corrige_erro_handling_cancelar_pedido.sql) | **Corrige um bug do endpoint `/pedidos/:id/cancelar`** (já aplicado em produção): ele devolvia HTTP 200 mesmo quando a operação falhava (ex.: cancelar pedido já cancelado), porque capturava o erro e só escrevia `erro_debug` no JSON sem propagar. O app nunca reconhecia isso como erro (só reage a HTTP não-2xx) e mostrava "sucesso" indevidamente. Rode este script para substituir o handler existente pelo corrigido. |
+
+### ⚠️ Pegadinha nova: erro de negócio precisa virar HTTP não-2xx **com a mensagem visível no corpo**
+
+Descoberta em 2026-08-18/19, revisando e testando (pela interface, não só script) o endpoint de caminhões antes de aplicar. Duas camadas do mesmo problema:
+
+1. Um handler que captura `WHEN OTHERS` e só escreve `{"erro_debug": ...}` no corpo, sem propagar o erro, faz o ORDS devolver **HTTP 200** — e o app Flutter (`ApiService._mapError`) só trata como erro quando o HTTP não é 2xx. Ou seja: um handler que "trata" o erro dessa forma faz o app achar que deu certo.
+2. A correção óbvia (`RAISE;` no lugar de escrever o JSON) **não é suficiente neste ambiente**: testando de verdade, um erro não capturado (mesmo um `RAISE_APPLICATION_ERROR` de propósito) cai numa página HTML genérica de erro do ORDS (`555`/`ORDS-25001`), **sem expor a mensagem real em lugar nenhum visível**.
+
+**Padrão correto, testado e confirmado funcionando** (endpoint de caminhões, 2026-08-19): dentro do `EXCEPTION`, definir explicitamente `:status_code := 400;` (bind especial do ORDS que controla o HTTP da resposta) **e** escrever o JSON de erro na chave `error` — `{"error": SQLERRM}`. Isso garante as duas coisas: HTTP não-2xx (o app reconhece como falha) e a mensagem real visível no corpo (`ApiService._extractMessage` já sabe ler a chave `error`).
+
+Os handlers de `caminhoes` já nascem com esse padrão. `cancelar_pedido` foi corrigido no item 8 acima. **`criar_pedido_completo`/`/pedidos_completo` (o `ORA-20001` de estoque insuficiente) usa um `RAISE;` simples e nunca foi confirmado funcionando *pelo app* — só por Postman.** Dado o que descobrimos aqui, vale testar esse fluxo pelo app antes de considerar 100% confiável; se também estiver quebrado, aplica o mesmo padrão `:status_code` + `error` lá.
 
 ## Pré-requisitos — confirmados em 2026-08-14 via `user_tab_columns`/`user_triggers`
 
