@@ -1,5 +1,18 @@
 # Ruflo — Claude Code Configuration
 
+## Memória do Projeto (Multi-Máquina)
+
+Este projeto é usado a partir de dois computadores diferentes. A pasta de memória padrão do
+Claude Code (`~/.claude/projects/.../memory/`) é local por máquina e **não sincroniza via git**.
+Por isso, anotações persistentes sobre este projeto (arquitetura, decisões, bugs conhecidos,
+preferências de trabalho do usuário) ficam em [`docs/MEMORIA.md`](docs/MEMORIA.md), que é
+versionado e acompanha o repositório em qualquer máquina.
+
+**No início de qualquer sessão neste projeto, leia `docs/MEMORIA.md` primeiro** — ele aponta
+para os demais docs relevantes (`docs/FLUTTER.md`, `backend/oracle/SCHEMA.md`,
+`backend/oracle/README.md`) — antes de reexplorar o código do zero. Ao aprender algo novo e
+durável sobre o projeto, adicione em `docs/MEMORIA.md` (datado), não só na memória local.
+
 ## Rules
 
 - Do what has been asked; nothing more, nothing less

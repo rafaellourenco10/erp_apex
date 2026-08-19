@@ -190,7 +190,7 @@ class _CaminhaoCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.stackLg),
       decoration: BoxDecoration(
-        color: AppColors.cardBackground,
+        color: AppColors.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(AppRadius.defaultR),
         boxShadow: [
           BoxShadow(
@@ -206,7 +206,7 @@ class _CaminhaoCard extends StatelessWidget {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: AppColors.surfaceContainerHigh,
+              color: AppColors.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(AppRadius.sm),
             ),
             child: const Icon(Icons.local_shipping_rounded,
