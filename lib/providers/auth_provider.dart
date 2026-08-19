@@ -10,7 +10,8 @@ class AuthProvider extends ChangeNotifier {
 
   Future<void> login(String email, String password) async {
     await Future.delayed(const Duration(milliseconds: 600));
-    _userName = email.split('@').first;
+    // Login mock: sem campo de nome real, fixo até existir autenticacao de verdade.
+    _userName = 'Rafael';
     _isLoggedIn = true;
     notifyListeners();
   }
