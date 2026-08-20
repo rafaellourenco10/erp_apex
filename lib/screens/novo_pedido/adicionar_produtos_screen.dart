@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/constants/app_colors.dart';
@@ -167,6 +168,53 @@ class _AdicionarProdutosScreenState extends State<AdicionarProdutosScreen> {
   }
 }
 
+Future<void> _editarQuantidade(
+  BuildContext context,
+  Produto produto,
+  int quantidadeAtual,
+) async {
+  final pedidoProvider = context.read<PedidoProvider>();
+  final controller = TextEditingController(
+    text: quantidadeAtual == 0 ? '' : '$quantidadeAtual',
+  );
+
+  final novaQuantidade = await showDialog<int>(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      title: Text(produto.nome, maxLines: 1, overflow: TextOverflow.ellipsis),
+      content: TextField(
+        controller: controller,
+        autofocus: true,
+        keyboardType: TextInputType.number,
+        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+        textAlign: TextAlign.center,
+        style: AppTextStyles.headlineSm(),
+        decoration: InputDecoration(
+          hintText: '0',
+          helperText: 'Estoque disponível: ${produto.estoque} un',
+        ),
+        onSubmitted: (value) =>
+            Navigator.of(dialogContext).pop(int.tryParse(value) ?? 0),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(dialogContext).pop(),
+          child: const Text('Cancelar'),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(dialogContext)
+              .pop(int.tryParse(controller.text) ?? 0),
+          child: const Text('Confirmar'),
+        ),
+      ],
+    ),
+  );
+
+  if (novaQuantidade != null) {
+    pedidoProvider.setQuantidade(produto, novaQuantidade);
+  }
+}
+
 class _ProdutoQtyCard extends StatelessWidget {
   final Produto produto;
 
@@ -253,12 +301,15 @@ class _ProdutoQtyCard extends StatelessWidget {
                           ? () => context.read<PedidoProvider>().decrementar(produto)
                           : null,
                     ),
-                    SizedBox(
-                      width: 24,
-                      child: Text(
-                        '$quantidade',
-                        textAlign: TextAlign.center,
-                        style: AppTextStyles.labelMd(color: AppColors.onSurface),
+                    GestureDetector(
+                      onTap: () => _editarQuantidade(context, produto, quantidade),
+                      child: SizedBox(
+                        width: 32,
+                        child: Text(
+                          '$quantidade',
+                          textAlign: TextAlign.center,
+                          style: AppTextStyles.labelMd(color: AppColors.onSurface),
+                        ),
                       ),
                     ),
                     _QtyButton(

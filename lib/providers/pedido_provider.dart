@@ -49,7 +49,7 @@ class PedidoProvider extends ChangeNotifier {
       _carrinho[produto.idProduto]?.quantidade ?? 0;
 
   void setQuantidade(Produto produto, int quantidade) {
-    final qtd = quantidade < 0 ? 0 : quantidade;
+    final qtd = quantidade.clamp(0, produto.estoque);
     _carrinho[produto.idProduto] =
         ItemPedido(produto: produto, quantidade: qtd);
     notifyListeners();
