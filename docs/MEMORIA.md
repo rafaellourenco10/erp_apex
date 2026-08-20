@@ -54,8 +54,53 @@ Resumo rápido (não repetir detalhes, já estão nos docs acima):
 - Frontend: Provider (`ChangeNotifier`), camadas `models → services → providers → screens`, sem
   Riverpod/Bloc/Clean Architecture.
 - Backend: Oracle Database + ORDS, módulo `erp.api`, workspace `erp_rafaellourenco`.
-- Módulos: Clientes, Produtos, Pedidos (novo + histórico), Caminhões/Frota, Dashboard. Sem CRUD de
-  clientes/produtos ainda, sem tela de Fornecedores (existe no banco, não no app), login 100% mock.
+- Módulos: Clientes, Produtos, Pedidos (novo + histórico), Caminhões/Frota, Dashboard, Relatórios
+  (novo em 2026-08-20). Sem CRUD de clientes/produtos ainda, sem tela de Fornecedores (existe no
+  banco, não no app), login 100% mock.
+
+## Funcionalidade: Relatórios (PDF + compartilhar), 2026-08-20
+
+Card na Home → `RelatoriosScreen` (`lib/screens/relatorios/relatorios_screen.dart`). Filtro por
+período (`showDateRangePicker`) e status sobre o que `HistoricoPedidosProvider` já carregou
+(client-side, sem endpoint novo — mesma limitação de paginação já conhecida). Gera PDF via
+`lib/services/pdf_report_service.dart` (pacote `pdf`) de um pedido específico ou do período
+consolidado, e compartilha via `Printing.sharePdf` (pacote `printing`), que abre o share sheet
+nativo do Android — o WhatsApp aparece como uma das opções, não é uma integração dedicada com o
+WhatsApp. **100% client-side, nenhuma mudança no backend/APEX.**
+
+Foi necessário adicionar `flutter_localizations` (o app não tinha nenhum delegate de localização
+configurado) pro `showDateRangePicker` funcionar em pt_BR — isso também subiu a constraint do
+`intl` para `0.20.2`.
+
+### Armadilha encontrada: `ElevatedButton` com o tema global dentro de um `Row`
+
+O tema (`AppTheme.light`, `lib/core/theme/app_theme.dart`) define
+`elevatedButtonTheme: ElevatedButton.styleFrom(minimumSize: Size.fromHeight(56))` — pensado pros
+botões de largura total que são filho único de uma `Column` (ex.: "Próximo Passo", "Confirmar
+Pedido"). `Size.fromHeight(56)` na prática define **largura mínima infinita**. Um `ElevatedButton`
+sem esse tema sobrescrito, colocado como filho não-flexível de um `Row` (ex.: ao lado de um
+`Expanded`), recebe largura máxima infinita do `Row` pra medir seu tamanho intrínseco — e a
+combinação quebra `BoxConstraints.debugAssertIsValid`. O sintoma não fica isolado no botão: a
+falha de layout corrompe o hit-test da tela **inteira**, e nada mais responde a toque (foi
+exatamente o que o usuário reportou: "não consigo clicar em nada na tela relatório").
+**Qualquer `ElevatedButton` novo que não seja filho único de largura total de uma `Column` precisa
+de `style: ElevatedButton.styleFrom(minimumSize: Size(0, ALTURA))` explícito**, senão herda essa
+armadilha do tema global.
+
+### Técnica de debugging validada: rodar no celular real + monitorar o log do `flutter run`
+
+Pra investigar "não consigo clicar em nada", rodei o app de verdade no celular Android físico do
+usuário (`flutter devices` já mostra o aparelho conectado por USB, ver dispositivo `SM M625F`) via
+`flutter run -d <device-id>`, sem tentar adivinhar pelo código. Como simular toques via `adb shell
+input tap/text` é impreciso (precisa printar tela, calcular coordenadas, e um toque errado pode
+sair do app sem pilha de navegação pra voltar — aconteceu nessa sessão), a abordagem que funcionou
+de verdade foi: deixar o **usuário** interagir manualmente no celular, e eu só monitorar o log do
+processo `flutter run` (grep por `exception|error|RenderFlex|Cannot hit test`) em tempo real — o
+stack trace apareceu no console assim que o usuário tocou na tela, apontando a linha exata
+(`relatorios_screen.dart:271`). **Repetir esse padrão** em bugs futuros de "não responde a
+toque"/comportamento visual estranho: rodar no dispositivo real + monitorar o log, em vez de tentar
+automatizar toques via `adb` (que só serve bem pra fluxos determinísticos tipo login, não pra
+diagnóstico exploratório).
 
 ## Bug conhecido pendente (prioridade alta)
 
@@ -65,10 +110,15 @@ Resumo rápido (não repetir detalhes, já estão nos docs acima):
   nesse endpoint (ex.: `ORA-20001`, estoque insuficiente) pode devolver **HTTP 200**, e o app
   Flutter (`ApiService._mapError`) trata como sucesso mesmo o pedido não tendo sido criado
   corretamente.
-- Correção sugerida: replicar o padrão `:status_code := 400` + `{"error": SQLERRM}` usado no
-  script `08`.
-- Status em 2026-08-19: **ainda não corrigido**. Usuário foi avisado e ainda vai decidir se quer
-  que o Claude aplique a correção.
+- Correção: script `backend/oracle/10_corrige_erro_handling_pedidos_completo.sql`, criado em
+  2026-08-20, replica o padrão `:status_code := 400` + `{"error": SQLERRM}` do script `08`.
+  Confirmado que **não precisa de nenhuma mudança no Flutter** — `ApiService._extractMessage`
+  (`lib/services/api_service.dart:86`) já lê a chave `error`, e `_mapError` já trata
+  especificamente `ORA-20001` extraindo a mensagem de estoque insuficiente.
+- Status em 2026-08-20: **script criado, mas ainda não aplicado nem testado**. Precisa que o
+  usuário rode o script manualmente no SQL Workshop do workspace `erp_rafaellourenco` (Claude não
+  tem acesso direto ao banco Oracle), depois testar o cenário de estoque insuficiente **pelo app**
+  (não só Postman) — esse caminho nunca foi exercitado de verdade.
 
 ## Ambiente Oracle APEX (App Builder) — versão 26.1.3
 
