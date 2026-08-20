@@ -110,6 +110,12 @@ class HomeScreen extends StatelessWidget {
           isPrimary: false,
           onTap: () => Navigator.of(context).pushNamed('/dashboard'),
         ),
+        _BentoCard(
+          label: 'Relatórios',
+          icon: Icons.description_rounded,
+          isPrimary: false,
+          onTap: () => Navigator.of(context).pushNamed('/relatorios'),
+        ),
       ],
     );
   }

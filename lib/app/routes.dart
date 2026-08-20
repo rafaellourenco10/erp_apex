@@ -10,6 +10,7 @@ import '../screens/novo_pedido/confirmacao_screen.dart';
 import '../screens/novo_pedido/selecionar_cliente_screen.dart';
 import '../screens/pedido_sucesso/pedido_sucesso_screen.dart';
 import '../screens/produtos/produtos_screen.dart';
+import '../screens/relatorios/relatorios_screen.dart';
 
 class AppRoutes {
   AppRoutes._();
@@ -24,6 +25,7 @@ class AppRoutes {
   static const String pedidoSucesso = '/pedido-sucesso';
   static const String meusPedidos = '/meus-pedidos';
   static const String dashboard = '/dashboard';
+  static const String relatorios = '/relatorios';
 
   static Map<String, WidgetBuilder> get routes => {
         login: (_) => const LoginScreen(),
@@ -36,5 +38,6 @@ class AppRoutes {
         pedidoSucesso: (_) => const PedidoSucessoScreen(),
         meusPedidos: (_) => const MeusPedidosScreen(),
         dashboard: (_) => const DashboardScreen(),
+        relatorios: (_) => const RelatoriosScreen(),
       };
 }
