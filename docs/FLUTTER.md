@@ -49,6 +49,8 @@ https://oracleapex.com/ords/erp_rafaellourenco/erp
 | Método | Endpoint | Uso |
 |---|---|---|
 | GET | `/clientes` | Lista clientes (`ClienteService`) |
+| POST | `/clientes` | Cria cliente (`ClienteProvider.criarCliente`) |
+| POST | `/clientes/{id}` | Edita cliente (`ClienteProvider.atualizarCliente`) — endpoint criado pela interface do APEX em 2026-08-24, ainda sem confirmação de teste |
 | GET | `/produtos` | Lista produtos (`ProdutoService`) |
 | POST | `/pedidos_completo` | Cria pedido + itens numa transação atômica (ver `backend/oracle/01_criar_pedido_completo.sql`) |
 | GET | `/pedidos` | Histórico de pedidos |
@@ -81,7 +83,8 @@ Rotas nomeadas centralizadas em `AppRoutes`, com uma exceção (ver Pendências 
 |---|---|---|
 | `LoginScreen` | `/` | Login mock |
 | `HomeScreen` | `/home` | Menu com 5 atalhos |
-| `ClientesScreen` | `/clientes` | Lista + busca |
+| `ClientesScreen` | `/clientes` | Lista + busca; toque num cliente ou botão "+" abre `CadastrarClienteScreen` |
+| `CadastrarClienteScreen` | `/clientes/novo` | Formulário de criar/editar cliente (mesma tela, modo definido por argumento opcional `clienteExistente`) — exclusão ainda não implementada de propósito |
 | `ProdutosScreen` | `/produtos` | Lista com badge de estoque baixo |
 | `SelecionarClienteScreen` → `AdicionarProdutosScreen` → `ConfirmacaoScreen` | `/novo-pedido/*` | Wizard de 3 passos pra criar pedido |
 | `PedidoSucessoScreen` | `/pedido-sucesso` | Confirmação pós-criação |
@@ -97,7 +100,7 @@ Rotas nomeadas centralizadas em `AppRoutes`, com uma exceção (ver Pendências 
 
 1. **Login é 100% mock** — `AuthProvider.login()` não chama API real, só valida formato do e-mail. Sem logout na UI.
 2. Comentário de classe desatualizado em `PedidoProvider` (ainda descreve o fluxo antigo de N chamadas, pré-`/pedidos_completo`).
-3. Cadastro de cliente: botão existe, ação é só um `SnackBar` "em breve".
+3. ~~Cadastro de cliente~~ — resolvido em 2026-08-24 (criar + editar). Falta só exclusão (adiada de propósito).
 4. Aba "Perfil" da bottom nav: não implementada, só `SnackBar`.
 5. Sem CRUD de Produtos nem qualquer tela de Fornecedores.
 6. `Produto.estoqueBaixo` com limiar fixo no client (`<= 20`) — candidato a virar `ESTOQUE_MINIMO` (coluna que já existe em `PRODUTOS`, ver `SCHEMA.md`).
