@@ -38,6 +38,30 @@
   paralelo (2 agentes simultâneos, ~50k tokens cada, isolados do contexto principal).
 - Ambiente: Windows 11, PowerShell como shell principal, Bash (Git Bash) também disponível.
 
+## ⚠️ Ação pendente na outra máquina (sincronizar depois do merge de 2026-08-25)
+
+Em 2026-08-25 as duas máquinas mexeram no mesmo dia no mesmo arquivo (`clientes_screen.dart`) —
+uma implementou cadastro/edição de cliente (`68c230a`, `654d166`), a outra adicionou CPF/CNPJ +
+endereço (`f4a1713`). O `git push` foi rejeitado por divergência; resolvido com `git pull` + merge,
+**sem conflito real** (as mudanças ficaram em partes diferentes do arquivo) — ver commit `5c06a7c`.
+
+**Na próxima vez que abrir este projeto na outra máquina, faça nesta ordem:**
+
+1. `git pull` — traz os commits novos (CPF/CNPJ + endereço em Clientes, scripts SQL 11/12, o merge
+   em si).
+2. `flutter pub get` — o `pubspec.lock` mudou (pacotes novos: `pdf`, `printing`,
+   `flutter_localizations`; a constraint do `intl` também mudou pra `^0.20.2`).
+3. **Nenhuma ação no Oracle/APEX é necessária nessa máquina.** O banco (`oracleapex.com`,
+   workspace `erp_rafaellourenco`) e o App Builder são um **recurso único na nuvem**, compartilhado
+   pelas duas máquinas — não são bancos/instalações locais separados. Os scripts
+   `11_adiciona_cnpj_endereco_clientes.sql` e `12_dados_exemplo_cnpj_endereco_clientes.sql` já
+   foram aplicados, e os 8 campos novos já foram adicionados ao `Form_Clientes` (página 3) no App
+   Builder — isso já vale pra qualquer máquina que abrir o mesmo workspace, não precisa repetir lá.
+4. Se `flutter analyze`/`flutter test` reclamarem de versão de SDK: o commit `68c230a` (feito na
+   outra máquina) indica que ela passou por um `flutter upgrade` recentemente, o que já forçou um
+   ajuste de constraint do `intl` uma vez. Vale rodar `flutter --version` nas duas máquinas e
+   comparar se aparecer divergência de novo.
+
 ## Estado do projeto (snapshot 2026-08-19)
 
 App Flutter (`erp_apex`, distribuidora) consumindo API real via Oracle APEX/ORDS (não é mock,
