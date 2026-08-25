@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../models/cliente.dart';
+import '../screens/clientes/cadastrar_cliente_screen.dart';
 import '../screens/clientes/clientes_screen.dart';
 import '../screens/dashboard/dashboard_screen.dart';
 import '../screens/home/home_screen.dart';
@@ -18,6 +20,7 @@ class AppRoutes {
   static const String login = '/';
   static const String home = '/home';
   static const String clientes = '/clientes';
+  static const String cadastrarCliente = '/clientes/novo';
   static const String produtos = '/produtos';
   static const String novoPedidoCliente = '/novo-pedido/cliente';
   static const String novoPedidoProdutos = '/novo-pedido/produtos';
@@ -31,6 +34,9 @@ class AppRoutes {
         login: (_) => const LoginScreen(),
         home: (_) => const HomeScreen(),
         clientes: (_) => const ClientesScreen(),
+        cadastrarCliente: (context) => CadastrarClienteScreen(
+              clienteExistente: ModalRoute.of(context)?.settings.arguments as Cliente?,
+            ),
         produtos: (_) => const ProdutosScreen(),
         novoPedidoCliente: (_) => const SelecionarClienteScreen(),
         novoPedidoProdutos: (_) => const AdicionarProdutosScreen(),

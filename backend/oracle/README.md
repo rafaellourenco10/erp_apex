@@ -59,6 +59,24 @@ Descoberta em 2026-08-18/19, revisando e testando (pela interface, não só scri
 
 Os handlers de `caminhoes` já nascem com esse padrão. `cancelar_pedido` foi corrigido no item 8 acima. **`criar_pedido_completo`/`/pedidos_completo`** tinha o mesmo bug (`erro_debug` sem propagar → HTTP 200 mesmo em erro de negócio) — corrigido no item 10 (`10_corrige_erro_handling_pedidos_completo.sql`), **ainda não aplicado nem testado pelo app**. Depois de rodar o script, testar o cenário de estoque insuficiente pelo app (não só Postman) antes de considerar fechado.
 
+## Endpoints de Clientes — criados pela interface (não scriptados)
+
+A partir de 2026-08-24, novos endpoints passaram a ser criados **direto pela interface do APEX** (SQL Workshop → RESTful Services → módulo `erp.api`), não por script SQL — o usuário está aprendendo APEX e prefere entender o processo pela própria plataforma. Os blocos PL/SQL usados ficam registrados aqui só como referência, mas não existe um arquivo `.sql` correspondente pra rodar.
+
+- **`POST /clientes`** (mesmo template do `GET /clientes` já existente, handler novo) — cria cliente. Body `{"nome", "email"?, "telefone"?}`, retorna `{"id_cliente": <id>}`. Segue o padrão já comprovado: `:body` lido manualmente via `DBMS_LOB.CONVERTTOCLOB` + `JSON_VALUE`, erro de negócio via `:status_code := 400` + `{"error": SQLERRM}`. **Confirmado funcionando em 2026-08-24** (`id_cliente: 61`).
+- **`POST /clientes/:id`** (template novo) — edita cliente (mesmo body do create). Erro `ORA-20006` se `nome` vier vazio, `ORA-20007` se o `:id` não existir. **Instruções passadas ao usuário em 2026-08-24, ainda não confirmado aplicado/testado.**
+- **`POST /clientes/:id/excluir`** — **decisão consciente de NÃO implementar ainda** (2026-08-24). O app tem o botão "+"/edição funcionando, mas exclusão de cliente foi adiada; nenhum código relacionado (nem endpoint, nem `ClienteService`/`ClienteProvider` no Flutter) foi mantido no repositório. Se for retomado, atenção a: `CLIENTES` tem `PEDIDOS` como FK filha — excluir um cliente com pedidos vai bater em `ORA-02292` (violação de integridade), então o handler precisa tratar esse caso com uma mensagem amigável em vez do erro técnico do Oracle.
+
+### Navegação confirmada: adicionar um handler novo a um template que já existe
+
+Confirmado via [documentação oficial da Oracle](https://docs.oracle.com/en/database/oracle/apex/24.1/aeutl/managing-resource-handlers.html) em 2026-08-24 (doc da versão 24.1, mas essa área do RESTful Services é estável entre versões). Pra adicionar, por exemplo, um `POST` a um template que já só tem `GET` (sem duplicar o template):
+
+1. RESTful Services → módulo `erp.api` → clique no **template** (não no handler existente dentro dele).
+2. Na tela do template ("ORDS Template Definition"), painel direito, seção **"Resource Handlers"** → botão **"Create Handler"**.
+3. Escolha o **Method** (ex.: `POST`), **Source Type**, e cole o **Source**.
+
+Cada template só pode ter **um handler por método HTTP** (um GET, um POST, um PUT, um DELETE) — para um recurso com URI diferente (ex.: `/clientes/:id` vs `/clientes`), é um **template novo**, não um handler a mais no mesmo template.
+
 ## Pré-requisitos — confirmados em 2026-08-14 via `user_tab_columns`/`user_triggers`
 
 - ✅ `PEDIDOS(id_pedido, id_cliente, data_pedido, status, valor_total)` — nomes batem.

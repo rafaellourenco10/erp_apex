@@ -14,8 +14,14 @@ class ClienteProvider extends ChangeNotifier {
   String? _error;
   String _searchQuery = '';
 
+  bool _isSubmitting = false;
+  String? _submitError;
+
   bool get isLoading => _isLoading;
   String? get error => _error;
+
+  bool get isSubmitting => _isSubmitting;
+  String? get submitError => _submitError;
 
   List<Cliente> get clientes {
     if (_searchQuery.isEmpty) return _clientes;
@@ -54,4 +60,89 @@ class ClienteProvider extends ChangeNotifier {
     }
     return null;
   }
+
+  /// Creates a new client (`POST /clientes`) and appends it to the loaded
+  /// list on success. Returns true on success; on failure, [submitError]
+  /// explains why.
+  Future<bool> criarCliente({
+    required String nome,
+    String? email,
+    String? telefone,
+  }) async {
+    _isSubmitting = true;
+    _submitError = null;
+    notifyListeners();
+
+    try {
+      final idCliente = await _service.criarCliente(
+        nome: nome,
+        email: email,
+        telefone: telefone,
+      );
+      _clientes.add(Cliente(
+        idCliente: idCliente,
+        nome: nome,
+        email: email,
+        telefone: telefone,
+      ));
+      _isSubmitting = false;
+      notifyListeners();
+      return true;
+    } on ApiException catch (e) {
+      _submitError = e.message;
+      _isSubmitting = false;
+      notifyListeners();
+      return false;
+    } catch (_) {
+      _submitError = 'Não foi possível cadastrar o cliente.';
+      _isSubmitting = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  /// Updates an existing client and reflects it locally on success. Returns
+  /// true on success; on failure, [submitError] explains why.
+  Future<bool> atualizarCliente(
+    int idCliente, {
+    required String nome,
+    String? email,
+    String? telefone,
+  }) async {
+    _isSubmitting = true;
+    _submitError = null;
+    notifyListeners();
+
+    try {
+      await _service.atualizarCliente(
+        idCliente,
+        nome: nome,
+        email: email,
+        telefone: telefone,
+      );
+      final index = _clientes.indexWhere((c) => c.idCliente == idCliente);
+      if (index != -1) {
+        _clientes[index] = Cliente(
+          idCliente: idCliente,
+          nome: nome,
+          email: email,
+          telefone: telefone,
+        );
+      }
+      _isSubmitting = false;
+      notifyListeners();
+      return true;
+    } on ApiException catch (e) {
+      _submitError = e.message;
+      _isSubmitting = false;
+      notifyListeners();
+      return false;
+    } catch (_) {
+      _submitError = 'Não foi possível atualizar o cliente.';
+      _isSubmitting = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
 }

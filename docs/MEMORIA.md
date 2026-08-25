@@ -54,9 +54,35 @@ Resumo rápido (não repetir detalhes, já estão nos docs acima):
 - Frontend: Provider (`ChangeNotifier`), camadas `models → services → providers → screens`, sem
   Riverpod/Bloc/Clean Architecture.
 - Backend: Oracle Database + ORDS, módulo `erp.api`, workspace `erp_rafaellourenco`.
-- Módulos: Clientes, Produtos, Pedidos (novo + histórico), Caminhões/Frota, Dashboard, Relatórios
-  (novo em 2026-08-20). Sem CRUD de clientes/produtos ainda, sem tela de Fornecedores (existe no
-  banco, não no app), login 100% mock.
+- Módulos: Clientes (criar + editar, desde 2026-08-24), Produtos, Pedidos (novo + histórico),
+  Caminhões/Frota, Dashboard, Relatórios (novo em 2026-08-20). Sem CRUD de Produtos ainda, sem
+  tela de Fornecedores (existe no banco, não no app), login 100% mock.
+
+## Funcionalidade: Cadastro/edição de Clientes, 2026-08-24
+
+Botão "+"/toque num cliente na `ClientesScreen` (antes só um `SnackBar` "em breve") agora abrem
+`CadastrarClienteScreen` (`lib/screens/clientes/cadastrar_cliente_screen.dart`), a mesma tela pra
+criar e editar (modo definido por um `Cliente? clienteExistente` opcional no construtor, passado
+via `arguments` da rota nomeada). Backend: `POST /clientes` (criar, **confirmado funcionando**,
+`id_cliente: 61`) e `POST /clientes/:id` (editar, instruções passadas, **ainda não confirmado
+testado**). Ver `backend/oracle/README.md` para o contrato e os blocos PL/SQL.
+
+**Decisão consciente: exclusão de cliente ainda NÃO foi implementada.** O usuário pediu
+explicitamente pra não fazer essa parte "ainda" — cheguei a implementar (service, provider, UI,
+endpoint) e depois removi tudo antes de commitar, pra não deixar código morto/endpoint pela metade
+no repositório. Se for retomado, a lógica é simples de recriar: `DELETE FROM clientes WHERE
+id_cliente = :id`, checar `SQL%ROWCOUNT` (erro customizado se não achou), e no `EXCEPTION` checar
+`INSTR(SQLERRM, 'ORA-02292') > 0` pra trocar o erro técnico de FK (`CLIENTES` tem `PEDIDOS` como
+filha) por uma mensagem amigável tipo "cliente possui pedidos vinculados".
+
+### Navegação ORDS confirmada: adicionar handler a um template existente
+
+Ver detalhe completo em `backend/oracle/README.md` (seção "Navegação confirmada"). Resumo: pra
+adicionar um método HTTP novo (ex. POST) a um recurso que já tem outro (ex. GET), **não crie um
+template novo** — clique no template já existente na árvore do RESTful Services, e use o botão
+**"Create Handler"** na seção "Resource Handlers" da tela do template. Um template novo só é
+necessário quando o URI muda de verdade (ex. `/clientes/:id` é diferente de `/clientes`).
+Confirmado via documentação oficial (24.1) em 2026-08-24, não por suposição.
 
 ## Funcionalidade: Relatórios (PDF + compartilhar), 2026-08-20
 
@@ -206,6 +232,18 @@ Páginas que **não** seguem esse par (relatórios/dashboards sem CRUD direto): 
 Interactive Grid), `Dashboard` (11, Home), `Top Clientes - Gráfico` (12, Chart), `Pedidos n3` (13,
 Interactive Report, alias `pedidos-drilldown`), `Relatório de Vendas` (17, Interactive Report).
 Essas não precisam de Form par.
+
+## Ambiente: SDK Flutter dessincronizado entre as duas máquinas, 2026-08-24
+
+Depois do `git pull` nesta máquina, `flutter analyze` falhou na resolução de pacotes:
+`printing ^5.15.0` exige Dart SDK ≥3.12, mas esta máquina tinha Flutter 3.41.9/Dart 3.11.5 (a
+outra máquina, onde a aba Relatórios foi criada, já tinha uma versão mais nova). **Usuário rodou
+`flutter upgrade` manualmente** (não deixou o Claude rodar via Bash) — depois disso, novo erro:
+`intl: 0.20.2` no `pubspec.yaml` estava travado em versão exata, incompatível com o `intl ^0.20.3`
+que o `flutter_localizations` do SDK novo passou a exigir. Corrigido soltando a constraint para
+`intl: ^0.20.2`. Lição: numa configuração multi-máquina, prefira constraints com `^` (caret) em
+vez de versão exata no `pubspec.yaml`, exceto quando há uma razão específica pra travar — isso
+reduz esse tipo de atrito toda vez que uma máquina atualiza o Flutter antes da outra.
 
 ## Convenções combinadas com o usuário
 

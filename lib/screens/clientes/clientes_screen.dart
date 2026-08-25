@@ -9,6 +9,7 @@ import '../../core/widgets/app_bottom_nav_bar.dart';
 import '../../core/widgets/state_views.dart';
 import '../../models/cliente.dart';
 import '../../providers/cliente_provider.dart';
+import '../../app/routes.dart';
 
 class ClientesScreen extends StatefulWidget {
   const ClientesScreen({super.key});
@@ -65,8 +66,17 @@ class _ClientesScreenState extends State<ClientesScreen> {
                   itemCount: provider.clientes.length,
                   separatorBuilder: (_, _) =>
                       const SizedBox(height: AppSpacing.gutterGrid),
-                  itemBuilder: (context, index) =>
-                      _ClienteCard(cliente: provider.clientes[index]),
+                  itemBuilder: (context, index) {
+                    final cliente = provider.clientes[index];
+                    return InkWell(
+                      borderRadius: BorderRadius.circular(AppRadius.defaultR),
+                      onTap: () => Navigator.of(context).pushNamed(
+                        AppRoutes.cadastrarCliente,
+                        arguments: cliente,
+                      ),
+                      child: _ClienteCard(cliente: cliente),
+                    );
+                  },
                 );
               },
             ),
@@ -76,11 +86,7 @@ class _ClientesScreenState extends State<ClientesScreen> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: AppColors.primaryContainer,
         foregroundColor: Colors.white,
-        onPressed: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Cadastro de cliente em breve.')),
-          );
-        },
+        onPressed: () => Navigator.of(context).pushNamed(AppRoutes.cadastrarCliente),
         child: const Icon(Icons.add_rounded),
       ),
       bottomNavigationBar: const AppBottomNavBar(),
