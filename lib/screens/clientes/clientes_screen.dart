@@ -130,6 +130,12 @@ class _ClienteCard extends StatelessWidget {
                   _InfoRow(
                       icon: Icons.call_outlined,
                       text: Formatters.phone(cliente.telefone)),
+                if (cliente.cpfCnpj != null && cliente.cpfCnpj!.isNotEmpty)
+                  _InfoRow(icon: Icons.badge_outlined, text: cliente.cpfCnpj!),
+                if (cliente.enderecoCompleto != null)
+                  _InfoRow(
+                      icon: Icons.location_on_outlined,
+                      text: cliente.enderecoCompleto!),
               ],
             ),
           ),

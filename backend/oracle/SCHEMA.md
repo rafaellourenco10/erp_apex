@@ -26,6 +26,14 @@ CLIENTES ──< PEDIDOS ──< ITENS_PEDIDO >── PRODUTOS >── FORNECEDO
 | EMAIL | VARCHAR2(100) | não | |
 | TELEFONE | VARCHAR2(20) | não | |
 | DATA_CADASTRO | DATE | não | |
+| CPF_CNPJ | VARCHAR2(18) | não | adicionado em `11_adiciona_cnpj_endereco_clientes.sql` (2026-08-25) — campo único, aceita CPF ou CNPJ |
+| ENDERECO | VARCHAR2(150) | não | |
+| NUMERO | VARCHAR2(10) | não | |
+| COMPLEMENTO | VARCHAR2(60) | não | |
+| BAIRRO | VARCHAR2(80) | não | |
+| CIDADE | VARCHAR2(80) | não | |
+| UF | CHAR(2) | não | |
+| CEP | VARCHAR2(9) | não | |
 
 ### PRODUTOS
 | Coluna | Tipo | Obrigatório | Chave |

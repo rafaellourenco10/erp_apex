@@ -120,6 +120,46 @@ diagnóstico exploratório).
   tem acesso direto ao banco Oracle), depois testar o cenário de estoque insuficiente **pelo app**
   (não só Postman) — esse caminho nunca foi exercitado de verdade.
 
+## CPF/CNPJ + endereço em Clientes (prioridade alta) — ✅ concluído, 2026-08-25
+
+Levantamento do lado APEX (não o app) identificou que `CLIENTES` não tinha documento fiscal nem
+endereço — bloqueava nota fiscal e entrega física (a distribuidora já tem frota em `CAMINHOES`,
+mas nenhum cliente tinha pra onde entregar). Decisões tomadas com o usuário: CPF/CNPJ em campo
+único (não separado por tipo de pessoa), endereço **estruturado** (rua/número/complemento/bairro/
+cidade/UF/CEP, não texto livre — pensando em rota de entrega por região no futuro), e escopo
+**backend + APEX + app Flutter**.
+
+- **Backend — ✅ aplicado em 2026-08-25**: script `backend/oracle/11_adiciona_cnpj_endereco_clientes.sql`
+  (`ALTER TABLE CLIENTES ADD (...)`, todas colunas opcionais), rodado pelo usuário no SQL Workshop.
+- **Descoberta importante — `/clientes` NÃO é Auto REST Enabled**: é um handler customizado dentro
+  do módulo `erp.api` (RESTful Services), do tipo **Query** (SQL puro — diferente dos handlers PL/SQL
+  tipo `pedidos_completo`/`cancelar_pedido`, mas também diferente de Auto REST). O ORDS empacota
+  sozinho a paginação (`items`/`hasMore`/`links`/`describedby`) em cima de um `SELECT` simples —
+  por isso a resposta *parecia* Auto REST à primeira vista, mas não era. **Esse handler nunca
+  esteve documentado em `backend/oracle/`** (pré-existente, criado direto no App Builder, não por
+  script versionado) — vale mapear os outros handlers "Query" (`/produtos` provavelmente é
+  parecido) numa próxima sessão.
+- **GET `/clientes` — ✅ corrigido em 2026-08-25**: a query do handler GET (RESTful Services →
+  módulo `erp.api` → `clientes` → GET) só selecionava `id_cliente, nome, email, telefone`. Alterada
+  para incluir as 8 colunas novas. Confirmado via Postman: aparecem como `null` nos clientes que
+  ainda não têm o dado.
+- **APEX (Form_Clientes, página 3) — ✅ concluído em 2026-08-25**: os 8 Page Items criados
+  (`P3_CPF_CNPJ`, `P3_ENDERECO`, `P3_NUMERO`, `P3_COMPLEMENTO`, `P3_BAIRRO`, `P3_CIDADE`, `P3_UF`,
+  `P3_CEP`), cada um com `Source → Form Region = Form_Clientes` + `Type = Database Column` +
+  `Column = <NOME_DA_COLUNA>` (ver a pegadinha documentada em `UI_MAP.md` — criar o item sozinho
+  não liga à tabela, precisa configurar essa sequência manualmente). Testado editando o cliente #1
+  (Rafael) e confirmado via `SELECT` direto no SQL Workshop: `cpf_cnpj`, `endereco`, `numero`,
+  `bairro`, `cidade`, `uf`, `cep` gravaram certinho no banco.
+- **Pendente (baixa prioridade)**: handler **POST** de `/clientes` (existe, não documentado)
+  provavelmente também precisa incluir os campos novos se algum dia for usado pra criar cliente —
+  hoje o app não tem cadastro de cliente implementado, e a criação de cliente é feita pelo
+  Form_Clientes no APEX (que já usa os campos novos corretamente via DML automático do form).
+- **App Flutter — ✅ feito em 2026-08-25**: `lib/models/cliente.dart` (8 campos novos +
+  `enderecoCompleto`) e `lib/screens/clientes/clientes_screen.dart` (mostra CPF/CNPJ e endereço no
+  card, se existirem). Como o `GET /clientes` já devolve os campos preenchidos, o app deve mostrar
+  o endereço do cliente #1 na próxima vez que a tela de Clientes carregar — **ainda não confirmado
+  visualmente no app** (só via Postman/SQL até agora).
+
 ## Ambiente Oracle APEX (App Builder) — versão 26.1.3
 
 Ferramenta hospedada em oracleapex.com, workspace `erp_rafaellourenco`, app `Application 166105`.
