@@ -238,7 +238,9 @@ cidade/UF/CEP, não texto livre — pensando em rota de entrega por região no f
   verificação ao vivo confirma. Criado o template + handler POST (mesmo padrão de
   `JSON_VALUE`/`UPDATE`/tratamento de erro dos outros handlers, incluindo checagem de
   `SQL%ROWCOUNT = 0` pra erro claro se o `id_cliente` não existir). Testado via Postman:
-  `200 OK`, `{"id_cliente": 21}`.
+  `200 OK`, `{"id_cliente": 21}`. **Confirmado também pelo app real** (não só Postman): editada a
+  Ana Souza (id 21) restaurando os dados originais do script 12, salvo com sucesso.
+  **Cadastro/edição de cliente com CPF/CNPJ e endereço está 100% funcional, ponta a ponta.**
 - **✅ Máscaras de input — 2026-08-26**: `lib/core/utils/input_formatters.dart` (novo arquivo,
   sem dependência externa) — `TelefoneInputFormatter` ((44) 9999-0000 → muda pra 99999-0000 no
   11º dígito) e `CpfCnpjInputFormatter` (CPF até 11 dígitos, CNPJ a partir do 12º, limite 14 —
