@@ -68,6 +68,14 @@ class ClienteProvider extends ChangeNotifier {
     required String nome,
     String? email,
     String? telefone,
+    String? cpfCnpj,
+    String? endereco,
+    String? numero,
+    String? complemento,
+    String? bairro,
+    String? cidade,
+    String? uf,
+    String? cep,
   }) async {
     _isSubmitting = true;
     _submitError = null;
@@ -78,12 +86,28 @@ class ClienteProvider extends ChangeNotifier {
         nome: nome,
         email: email,
         telefone: telefone,
+        cpfCnpj: cpfCnpj,
+        endereco: endereco,
+        numero: numero,
+        complemento: complemento,
+        bairro: bairro,
+        cidade: cidade,
+        uf: uf,
+        cep: cep,
       );
       _clientes.add(Cliente(
         idCliente: idCliente,
         nome: nome,
         email: email,
         telefone: telefone,
+        cpfCnpj: cpfCnpj,
+        endereco: endereco,
+        numero: numero,
+        complemento: complemento,
+        bairro: bairro,
+        cidade: cidade,
+        uf: uf,
+        cep: cep,
       ));
       _isSubmitting = false;
       notifyListeners();
@@ -108,6 +132,14 @@ class ClienteProvider extends ChangeNotifier {
     required String nome,
     String? email,
     String? telefone,
+    String? cpfCnpj,
+    String? endereco,
+    String? numero,
+    String? complemento,
+    String? bairro,
+    String? cidade,
+    String? uf,
+    String? cep,
   }) async {
     _isSubmitting = true;
     _submitError = null;
@@ -119,6 +151,14 @@ class ClienteProvider extends ChangeNotifier {
         nome: nome,
         email: email,
         telefone: telefone,
+        cpfCnpj: cpfCnpj,
+        endereco: endereco,
+        numero: numero,
+        complemento: complemento,
+        bairro: bairro,
+        cidade: cidade,
+        uf: uf,
+        cep: cep,
       );
       final index = _clientes.indexWhere((c) => c.idCliente == idCliente);
       if (index != -1) {
@@ -127,6 +167,14 @@ class ClienteProvider extends ChangeNotifier {
           nome: nome,
           email: email,
           telefone: telefone,
+          cpfCnpj: cpfCnpj,
+          endereco: endereco,
+          numero: numero,
+          complemento: complemento,
+          bairro: bairro,
+          cidade: cidade,
+          uf: uf,
+          cep: cep,
         );
       }
       _isSubmitting = false;

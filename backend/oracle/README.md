@@ -46,6 +46,12 @@ Descoberto em 2026-08-25 ao aplicar o item 11: alterar a tabela `CLIENTES` **nã
 
 **✅ Fechado em 2026-08-25**: campos adicionados ao `Form_Clientes` (página 3) no App Builder, testado editando o cliente #1 e confirmado via `SELECT` direto no banco — CPF/CNPJ e endereço gravam corretamente. Fluxo completo (tabela → API → formulário → salvamento) funcionando ponta a ponta.
 
+### ⚠️ `POST /clientes` tinha o mesmo problema do `GET` — corrigido em 2026-08-26
+
+O app ganhou uma tela de cadastro/edição de cliente (implementada em outra máquina, ver `docs/MEMORIA.md`). Ao testar criando cliente com CPF/CNPJ e endereço preenchidos, os dados não apareciam no banco. Handler POST de `/clientes` (PL/SQL, extrai campos do `:body` via `JSON_VALUE` e faz `INSERT`) só lia e gravava `nome`/`email`/`telefone` — mesma limitação do handler GET, mesma lição: **um `ALTER TABLE` nunca propaga sozinho pra nenhum handler escrito à mão**, seja ele de leitura ou de escrita. Corrigido acrescentando 8 `JSON_VALUE` e as colunas correspondentes no `INSERT`, preservando o padrão de erro já usado (`:status_code := 400` + `{"error": SQLERRM}`). Testado criando cliente pelo app e confirmado via `SELECT`.
+
+**Handler de edição (`POST /clientes/:id`) ainda não verificado** — mesma suspeita, ainda não testado.
+
 Esse handler `/clientes` (e provavelmente `/produtos`, que segue o mesmo padrão) nunca tinha sido documentado aqui — foi criado direto no App Builder antes destes scripts existirem. Vale mapear os dois em detalhe numa próxima sessão.
 
 ### ⚠️ Pegadinha nova: erro de negócio precisa virar HTTP não-2xx **com a mensagem visível no corpo**

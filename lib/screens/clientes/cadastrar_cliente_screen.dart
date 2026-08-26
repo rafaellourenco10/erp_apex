@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/theme/app_text_styles.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/utils/input_formatters.dart';
 import '../../models/cliente.dart';
 import '../../providers/cliente_provider.dart';
 
@@ -27,12 +29,34 @@ class _CadastrarClienteScreenState extends State<CadastrarClienteScreen> {
       TextEditingController(text: widget.clienteExistente?.email);
   late final _telefoneController =
       TextEditingController(text: widget.clienteExistente?.telefone);
+  late final _cpfCnpjController =
+      TextEditingController(text: widget.clienteExistente?.cpfCnpj);
+  late final _enderecoController =
+      TextEditingController(text: widget.clienteExistente?.endereco);
+  late final _numeroController =
+      TextEditingController(text: widget.clienteExistente?.numero);
+  late final _complementoController =
+      TextEditingController(text: widget.clienteExistente?.complemento);
+  late final _bairroController =
+      TextEditingController(text: widget.clienteExistente?.bairro);
+  late final _cidadeController =
+      TextEditingController(text: widget.clienteExistente?.cidade);
+  late final _ufController = TextEditingController(text: widget.clienteExistente?.uf);
+  late final _cepController = TextEditingController(text: widget.clienteExistente?.cep);
 
   @override
   void dispose() {
     _nomeController.dispose();
     _emailController.dispose();
     _telefoneController.dispose();
+    _cpfCnpjController.dispose();
+    _enderecoController.dispose();
+    _numeroController.dispose();
+    _complementoController.dispose();
+    _bairroController.dispose();
+    _cidadeController.dispose();
+    _ufController.dispose();
+    _cepController.dispose();
     super.dispose();
   }
 
@@ -43,6 +67,14 @@ class _CadastrarClienteScreenState extends State<CadastrarClienteScreen> {
     final nome = _nomeController.text.trim();
     final email = _emailController.text.trim();
     final telefone = _telefoneController.text.trim();
+    final cpfCnpj = _cpfCnpjController.text.trim();
+    final endereco = _enderecoController.text.trim();
+    final numero = _numeroController.text.trim();
+    final complemento = _complementoController.text.trim();
+    final bairro = _bairroController.text.trim();
+    final cidade = _cidadeController.text.trim();
+    final uf = _ufController.text.trim();
+    final cep = _cepController.text.trim();
 
     final sucesso = widget.isEdicao
         ? await provider.atualizarCliente(
@@ -50,8 +82,28 @@ class _CadastrarClienteScreenState extends State<CadastrarClienteScreen> {
             nome: nome,
             email: email,
             telefone: telefone,
+            cpfCnpj: cpfCnpj,
+            endereco: endereco,
+            numero: numero,
+            complemento: complemento,
+            bairro: bairro,
+            cidade: cidade,
+            uf: uf,
+            cep: cep,
           )
-        : await provider.criarCliente(nome: nome, email: email, telefone: telefone);
+        : await provider.criarCliente(
+            nome: nome,
+            email: email,
+            telefone: telefone,
+            cpfCnpj: cpfCnpj,
+            endereco: endereco,
+            numero: numero,
+            complemento: complemento,
+            bairro: bairro,
+            cidade: cidade,
+            uf: uf,
+            cep: cep,
+          );
 
     if (!mounted) return;
 
@@ -95,7 +147,7 @@ class _CadastrarClienteScreenState extends State<CadastrarClienteScreen> {
                 ),
                 const SizedBox(height: AppSpacing.stackLg),
                 _buildField(
-                  label: 'EMAIL (OPCIONAL)',
+                  label: 'EMAIL',
                   controller: _emailController,
                   hintText: 'cliente@email.com',
                   keyboardType: TextInputType.emailAddress,
@@ -107,10 +159,88 @@ class _CadastrarClienteScreenState extends State<CadastrarClienteScreen> {
                 ),
                 const SizedBox(height: AppSpacing.stackLg),
                 _buildField(
-                  label: 'TELEFONE (OPCIONAL)',
+                  label: 'TELEFONE',
                   controller: _telefoneController,
-                  hintText: '(43) 99111-2222',
+                  hintText: '(44) 99999-0000',
                   keyboardType: TextInputType.phone,
+                  inputFormatters: [TelefoneInputFormatter()],
+                ),
+                const SizedBox(height: AppSpacing.stackLg),
+                _buildField(
+                  label: 'CPF/CNPJ',
+                  controller: _cpfCnpjController,
+                  hintText: '000.000.000-00',
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [CpfCnpjInputFormatter()],
+                ),
+                const SizedBox(height: AppSpacing.stackLg),
+                _buildField(
+                  label: 'ENDEREÇO',
+                  controller: _enderecoController,
+                  hintText: 'Rua, avenida...',
+                  keyboardType: TextInputType.streetAddress,
+                ),
+                const SizedBox(height: AppSpacing.stackLg),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: _buildField(
+                        label: 'NÚMERO',
+                        controller: _numeroController,
+                        hintText: '123',
+                        keyboardType: TextInputType.number,
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.gutterGrid),
+                    Expanded(
+                      flex: 2,
+                      child: _buildField(
+                        label: 'COMPLEMENTO (OPCIONAL)',
+                        controller: _complementoController,
+                        hintText: 'Bloco, sala...',
+                        keyboardType: TextInputType.text,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.stackLg),
+                _buildField(
+                  label: 'BAIRRO',
+                  controller: _bairroController,
+                  hintText: 'Bairro',
+                  keyboardType: TextInputType.text,
+                ),
+                const SizedBox(height: AppSpacing.stackLg),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: _buildField(
+                        label: 'CIDADE',
+                        controller: _cidadeController,
+                        hintText: 'Cidade',
+                        keyboardType: TextInputType.text,
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.gutterGrid),
+                    Expanded(
+                      child: _buildField(
+                        label: 'UF',
+                        controller: _ufController,
+                        hintText: 'PR',
+                        keyboardType: TextInputType.text,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.stackLg),
+                _buildField(
+                  label: 'CEP',
+                  controller: _cepController,
+                  hintText: '87000-000',
+                  keyboardType: TextInputType.number,
                 ),
                 const SizedBox(height: AppSpacing.stackXl),
                 Consumer<ClienteProvider>(
@@ -144,6 +274,7 @@ class _CadastrarClienteScreenState extends State<CadastrarClienteScreen> {
     required String hintText,
     required TextInputType keyboardType,
     String? Function(String?)? validator,
+    List<TextInputFormatter>? inputFormatters,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -155,6 +286,7 @@ class _CadastrarClienteScreenState extends State<CadastrarClienteScreen> {
           keyboardType: keyboardType,
           decoration: InputDecoration(hintText: hintText),
           validator: validator,
+          inputFormatters: inputFormatters,
         ),
       ],
     );

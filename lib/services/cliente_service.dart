@@ -20,11 +20,27 @@ class ClienteService {
     required String nome,
     String? email,
     String? telefone,
+    String? cpfCnpj,
+    String? endereco,
+    String? numero,
+    String? complemento,
+    String? bairro,
+    String? cidade,
+    String? uf,
+    String? cep,
   }) async {
     final data = await _api.post(ApiConstants.clientes, {
       'nome': nome,
       if (email != null && email.isNotEmpty) 'email': email,
       if (telefone != null && telefone.isNotEmpty) 'telefone': telefone,
+      if (cpfCnpj != null && cpfCnpj.isNotEmpty) 'cpf_cnpj': cpfCnpj,
+      if (endereco != null && endereco.isNotEmpty) 'endereco': endereco,
+      if (numero != null && numero.isNotEmpty) 'numero': numero,
+      if (complemento != null && complemento.isNotEmpty) 'complemento': complemento,
+      if (bairro != null && bairro.isNotEmpty) 'bairro': bairro,
+      if (cidade != null && cidade.isNotEmpty) 'cidade': cidade,
+      if (uf != null && uf.isNotEmpty) 'uf': uf,
+      if (cep != null && cep.isNotEmpty) 'cep': cep,
     });
     return data['id_cliente'] as int;
   }
@@ -35,11 +51,27 @@ class ClienteService {
     required String nome,
     String? email,
     String? telefone,
+    String? cpfCnpj,
+    String? endereco,
+    String? numero,
+    String? complemento,
+    String? bairro,
+    String? cidade,
+    String? uf,
+    String? cep,
   }) async {
     await _api.post('${ApiConstants.clientes}/$idCliente', {
       'nome': nome,
       if (email != null && email.isNotEmpty) 'email': email,
       if (telefone != null && telefone.isNotEmpty) 'telefone': telefone,
+      if (cpfCnpj != null && cpfCnpj.isNotEmpty) 'cpf_cnpj': cpfCnpj,
+      if (endereco != null && endereco.isNotEmpty) 'endereco': endereco,
+      if (numero != null && numero.isNotEmpty) 'numero': numero,
+      if (complemento != null && complemento.isNotEmpty) 'complemento': complemento,
+      if (bairro != null && bairro.isNotEmpty) 'bairro': bairro,
+      if (cidade != null && cidade.isNotEmpty) 'cidade': cidade,
+      if (uf != null && uf.isNotEmpty) 'uf': uf,
+      if (cep != null && cep.isNotEmpty) 'cep': cep,
     });
   }
 }

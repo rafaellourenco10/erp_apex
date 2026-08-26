@@ -40,6 +40,10 @@
 
 ## ⚠️ Ação pendente na outra máquina (sincronizar depois do merge de 2026-08-25)
 
+> **Status em 2026-08-26: ainda NÃO sincronizado.** O usuário confirmou que ainda não abriu/mexeu
+> nesse repositório na outra máquina desde o merge — os passos abaixo **ainda precisam ser
+> executados** lá, não é só um registro histórico.
+
 Em 2026-08-25 as duas máquinas mexeram no mesmo dia no mesmo arquivo (`clientes_screen.dart`) —
 uma implementou cadastro/edição de cliente (`68c230a`, `654d166`), a outra adicionou CPF/CNPJ +
 endereço (`f4a1713`). O `git push` foi rejeitado por divergência; resolvido com `git pull` + merge,
@@ -209,6 +213,27 @@ cidade/UF/CEP, não texto livre — pensando em rota de entrega por região no f
   card, se existirem). Como o `GET /clientes` já devolve os campos preenchidos, o app deve mostrar
   o endereço do cliente #1 na próxima vez que a tela de Clientes carregar — **ainda não confirmado
   visualmente no app** (só via Postman/SQL até agora).
+- **✅ Gap fechado em 2026-08-26**: a tela de cadastro/edição de cliente que veio da outra máquina
+  (`CadastrarClienteScreen`, `ClienteProvider.criarCliente`/`atualizarCliente`, `ClienteService`)
+  não capturava os 8 campos novos. Estendidas as três camadas juntas (tela: 8 controllers + campos
+  de UI, agrupados em pares Número/Complemento e Cidade/UF; provider: parâmetros propagados pro
+  service **e** para os objetos `Cliente(...)` reconstruídos localmente, evitando o risco de perda
+  silenciosa da lista em memória que tinha sido identificado; service: incluídos no body do
+  `POST /clientes` e `POST /clientes/{id}`, mesmo padrão condicional de opcional já usado pra
+  email/telefone). `flutter analyze`/`flutter test` limpos.
+  **✅ Testado e corrigido em 2026-08-26**: como suspeitado, o handler `POST` de `/clientes`
+  (PL/SQL escrito à mão, igual o `GET`) só lia `nome`/`email`/`telefone` via `JSON_VALUE` e só
+  gravava essas 3 colunas no `INSERT`. Corrigido acrescentando os 8 `JSON_VALUE`/colunas — mesmo
+  padrão de erro (`:status_code := 400` + `{"error": SQLERRM}`) preservado. Testado criando cliente
+  pelo app e confirmando via `SELECT` no SQL Workshop. **Handler de edição (`POST /clientes/:id`)
+  ainda não verificado** — mesmo risco, não confirmado se já aceita os campos novos.
+- **✅ Máscaras de input — 2026-08-26**: `lib/core/utils/input_formatters.dart` (novo arquivo,
+  sem dependência externa) — `TelefoneInputFormatter` ((44) 9999-0000 → muda pra 99999-0000 no
+  11º dígito) e `CpfCnpjInputFormatter` (CPF até 11 dígitos, CNPJ a partir do 12º, limite 14 —
+  cabe exatamente no `VARCHAR2(18)` da coluna). Aplicados em [[Tela Cadastrar Cliente]] do vault
+  Obsidian. Rótulos "(OPCIONAL)" removidos de todos os campos a pedido do usuário, mantido só em
+  "COMPLEMENTO (OPCIONAL)" — isso também corrigiu um desnível visual entre os campos Número e
+  Complemento (o rótulo comprido de Número quebrava em duas linhas).
 
 ## Ambiente Oracle APEX (App Builder) — versão 26.1.3
 
