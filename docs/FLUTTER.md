@@ -67,7 +67,7 @@ https://oracleapex.com/ords/erp_rafaellourenco/erp
 
 | Model Flutter | Tabela Oracle | Observação |
 |---|---|---|
-| `Cliente` | `CLIENTES` | Reduzido: só `id_cliente, nome, email, telefone` |
+| `Cliente` | `CLIENTES` | `id_cliente, nome, email, telefone` + desde 2026-08-25: `cpfCnpj, endereco, numero, complemento, bairro, cidade, uf, cep` (`enderecoCompleto` combina os últimos pra exibição) |
 | `Produto` | `PRODUTOS` | `estoqueBaixo` é regra **hardcoded no client** (`estoque <= 20`), não vem do backend |
 | `Pedido` | `PEDIDOS` (+ join `CLIENTES` p/ nome) | `PedidoStatus` enum: `pendente, aprovado, faturado, entregue, cancelado` |
 | `PedidoItemResumo` | `ITENS_PEDIDO` (+ join `PRODUTOS` p/ nome) | — |
@@ -91,6 +91,7 @@ Rotas nomeadas centralizadas em `AppRoutes`, com uma exceção (ver Pendências 
 | `MeusPedidosScreen` | `/meus-pedidos` | Histórico com filtro por status |
 | `DetalhePedidoScreen` | *(sem rota nomeada)* | Detalhe, cancelar, "repetir pedido" |
 | `DashboardScreen` | `/dashboard` | KPIs (pedidos pendentes, valor em aberto) calculados client-side a partir de `HistoricoPedidosProvider` + seção "Frota" (`CaminhaoProvider`), só exibição por enquanto |
+| `RelatoriosScreen` | `/relatorios` | Filtro por período/status sobre o histórico já carregado; gera PDF (pacote `pdf`) de um pedido ou do período consolidado e compartilha via `Printing.sharePdf` — 100% client-side, sem endpoint novo |
 
 ## Dependências principais (`pubspec.yaml`)
 
