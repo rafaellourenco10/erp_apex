@@ -5,7 +5,11 @@ class AppColors {
   AppColors._();
 
   static const Color primary = Color(0xFFA04100);
-  static const Color primaryContainer = Color(0xFFFF6B00);
+  /// Deep Orange 900 (Material Design) — escurecido a partir do #FF6B00
+  /// original em 2026-09-16: branco sobre #FF6B00 tinha contraste ~2.9:1,
+  /// abaixo do WCAG AA (4.5:1) para texto normal. Esse tom dá ~5.6:1,
+  /// usado tanto como cor de texto quanto de fundo em vários lugares do app.
+  static const Color primaryContainer = Color(0xFFBF360C);
   static const Color onPrimary = Color(0xFFFFFFFF);
   static const Color onPrimaryContainer = Color(0xFF572000);
   static const Color inversePrimary = Color(0xFFFFB693);

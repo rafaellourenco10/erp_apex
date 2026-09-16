@@ -1,5 +1,5 @@
 name: erp_apex
-description: "A new Flutter project."
+description: "ERP Simples — app de pedidos para vendedores de campo de uma distribuidora, integrado a um backend Oracle APEX/ORDS."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev

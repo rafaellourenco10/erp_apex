@@ -11,6 +11,31 @@ import '../../providers/pedido_provider.dart';
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
+  Future<void> _confirmarLogout(BuildContext context) async {
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Sair da conta?'),
+        content: const Text('Você vai precisar entrar de novo pra acessar o app.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: TextButton.styleFrom(foregroundColor: AppColors.error),
+            child: const Text('Sair'),
+          ),
+        ],
+      ),
+    );
+    if (confirmar != true || !context.mounted) return;
+
+    context.read<AuthProvider>().logout();
+    Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+  }
+
   @override
   Widget build(BuildContext context) {
     final userName = context.watch<AuthProvider>().userName;
@@ -53,15 +78,19 @@ class HomeScreen extends StatelessWidget {
               Text('Olá, $name', style: AppTextStyles.headlineLg()),
             ],
           ),
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: AppColors.surfaceContainerHighest,
-              shape: BoxShape.circle,
-              border: Border.all(color: AppColors.surfaceContainerHighest, width: 2),
+          InkWell(
+            onTap: () => _confirmarLogout(context),
+            customBorder: const CircleBorder(),
+            child: Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: AppColors.surfaceContainerHighest,
+                shape: BoxShape.circle,
+                border: Border.all(color: AppColors.surfaceContainerHighest, width: 2),
+              ),
+              child: const Icon(Icons.person_rounded, color: AppColors.onSurfaceVariant),
             ),
-            child: const Icon(Icons.person_rounded, color: AppColors.onSurfaceVariant),
           ),
         ],
       ),

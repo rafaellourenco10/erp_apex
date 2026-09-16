@@ -171,7 +171,7 @@ class _StockBadge extends StatelessWidget {
             const SizedBox(width: 4),
           ],
           Text(
-            baixo ? 'Estoque baixo (${produto.estoque})' : 'Stock: ${produto.estoque}',
+            baixo ? 'Estoque baixo (${produto.estoque})' : 'Estoque: ${produto.estoque}',
             style: AppTextStyles.labelSm(color: Colors.white),
           ),
         ],

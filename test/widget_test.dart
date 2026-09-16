@@ -23,7 +23,7 @@ void main() {
           ChangeNotifierProvider(create: (_) => ProdutoProvider(ProdutoService(apiService))),
           ChangeNotifierProvider(create: (_) => PedidoProvider(PedidoService(apiService))),
         ],
-        child: const SalesProApp(),
+        child: const ErpSimplesApp(),
       ),
     );
 

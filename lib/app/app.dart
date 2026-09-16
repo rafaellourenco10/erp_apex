@@ -5,8 +5,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import '../core/theme/app_theme.dart';
 import 'routes.dart';
 
-class SalesProApp extends StatelessWidget {
-  const SalesProApp({super.key});
+class ErpSimplesApp extends StatelessWidget {
+  const ErpSimplesApp({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -8,7 +8,7 @@ Estudo da arquitetura do app em `lib/`, que consome a API ORDS/Oracle APEX docum
 lib/
 ├── main.dart                          # entry point, monta MultiProvider e injeta serviços
 ├── app/
-│   ├── app.dart                       # widget raiz MaterialApp (SalesProApp)
+│   ├── app.dart                       # widget raiz MaterialApp (ErpSimplesApp)
 │   └── routes.dart                    # tabela de rotas nomeadas (AppRoutes)
 ├── core/
 │   ├── constants/                     # api_constants.dart (base URL ORDS), app_colors.dart
@@ -50,7 +50,7 @@ https://oracleapex.com/ords/erp_rafaellourenco/erp
 |---|---|---|
 | GET | `/clientes` | Lista clientes (`ClienteService`) |
 | POST | `/clientes` | Cria cliente (`ClienteProvider.criarCliente`) |
-| POST | `/clientes/{id}` | Edita cliente (`ClienteProvider.atualizarCliente`) — endpoint criado pela interface do APEX em 2026-08-24, ainda sem confirmação de teste |
+| POST | `/clientes/{id}` | Edita cliente (`ClienteProvider.atualizarCliente`) — endpoint criado pela interface do APEX, testado e confirmado funcionando em 2026-08-26 |
 | GET | `/produtos` | Lista produtos (`ProdutoService`) |
 | POST | `/pedidos_completo` | Cria pedido + itens numa transação atômica (ver `backend/oracle/01_criar_pedido_completo.sql`) |
 | GET | `/pedidos` | Histórico de pedidos |
@@ -99,7 +99,7 @@ Rotas nomeadas centralizadas em `AppRoutes`, com uma exceção (ver Pendências 
 
 ## Pendências / inconsistências conhecidas
 
-1. **Login é 100% mock** — `AuthProvider.login()` não chama API real, só valida formato do e-mail. Sem logout na UI.
+1. **Login é 100% mock** — `AuthProvider.login()` não chama API real, só valida formato do e-mail. ~~Sem logout na UI~~ — resolvido em 2026-09-16: tocar no avatar da Home abre confirmação e chama `AuthProvider.logout()`.
 2. Comentário de classe desatualizado em `PedidoProvider` (ainda descreve o fluxo antigo de N chamadas, pré-`/pedidos_completo`).
 3. ~~Cadastro de cliente~~ — resolvido em 2026-08-24 (criar + editar). Falta só exclusão (adiada de propósito).
 4. Aba "Perfil" da bottom nav: não implementada, só `SnackBar`.

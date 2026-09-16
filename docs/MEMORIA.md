@@ -24,6 +24,44 @@
 5. Mantenha entradas datadas (`AAAA-MM-DD`) para dar para saber o que ainda é válido depois de um
    tempo.
 
+## ⭐ Propósito real do projeto — revelado em 2026-09-16
+
+**Este projeto é um protótipo de portfólio para o usuário apresentar em entrevista de emprego** —
+não é um ERP de produção real encomendado por uma distribuidora de verdade. Isso muda a lente de
+priorização: o que importa não é "está pronto pra uso real" (autenticação robusta, multi-usuário,
+permissões granulares etc.), e sim **o que impressiona um recrutador/entrevistador técnico
+olhando o repositório e/ou vendo uma demo** — qualidade de código percebida, testes, CI,
+documentação, polimento visual, capacidade de explicar decisões técnicas. Itens "corretos pra
+produção" (ex.: Access Control por usuário no APEX, autenticação real robusta) foram
+conscientemente **pausados** por causa disso em 2026-09-16 (ver seção abaixo) — não descartar as
+notas de "Access Control" do `UI_MAP.md`, só não é prioridade agora.
+
+## Polimento "pra impressionar recrutador" — 2026-09-16
+
+Primeira rodada de melhorias sob a lente do propósito real do projeto (seção acima). Itens do
+"Pontos de Atenção" do Obsidian revisados e corrigidos (menor esforço, maior sinal de atenção a
+detalhe):
+
+- **Nome do app padronizado em "ERP Simples"**: classe raiz `SalesProApp` → `ErpSimplesApp`
+  (`lib/app/app.dart`, `lib/main.dart`, `test/widget_test.dart`), `android:label` do
+  `AndroidManifest.xml` (estava `erp_apex`), `pubspec.yaml.description` (ainda era o texto padrão
+  do `flutter create`, nunca preenchida).
+- **Contraste do laranja corrigido**: `AppColors.primaryContainer` era `#FF6B00` (branco sobre ele
+  ≈ 2.9:1, abaixo do WCAG AA), usado tanto como cor de fundo (botões/badges) quanto como cor de
+  **texto** direto em ~15 lugares (preço, links, títulos) — esse segundo uso era o caso mais
+  crítico. Escurecido pra `#BF360C` (Deep Orange 900, Material Design) — ~5.6:1, resolve os dois
+  usos de uma vez com uma única mudança de token.
+- **String em inglês corrigida**: `"Stock: 45"` → `"Estoque: 45"` em `produtos_screen.dart`.
+- **Código morto revisado (não removido às cegas)**: `AppRadius.lg`/`xl` removidos (confirmado
+  via grep que não eram usados); `AuthProvider.logout()`/`isLoggedIn` **não foram removidos** —
+  estavam com método pronto mas nunca chamado, então em vez de apagar, foi conectado um botão de
+  logout de verdade no avatar da Home (confirma antes de sair, já era item do Roadmap). `Pedido.copyWith`,
+  que a nota antiga do Obsidian listava como morto, na verdade **já estava em uso** há tempo
+  (cancelamento de pedido, repetir pedido, Relatórios) — nota corrigida em vez de mexer no código.
+
+`flutter analyze`/`flutter test` limpos depois de tudo. Notas do Obsidian (`Pontos de Atenção.md`,
+`Paleta de Cores.md`, `Roadmap e Próximos Passos.md`) atualizadas junto.
+
 ## Perfil do usuário / como trabalhar
 
 - Usuário: Rafael (autor dos commits do projeto; e-mail `ikutschenko@gmail.com`).

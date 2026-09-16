@@ -183,6 +183,71 @@ ele à tabela sozinho.** Depois de criado, o item vem com a seção **Source** a
 Pular o passo 2 (deixar `Type: Null`) é o motivo mais provável de "não encontrar a coluna no
 dropdown" — o campo `Column` nem existe ainda nesse estado, não é falta da coluna na tabela.
 
+## Autenticação por usuário + permissões (Access Control) — pesquisado em 2026-09-16
+
+**Confirmado via documentação oficial (21.x–24.x, a mais recente indexada — mecanismo estável
+nessa área do APEX, ainda não confirmado literalmente contra uma página 26.1, mas alta confiança).**
+Usado pra dar a cada funcionário do escritório um login próprio e um papel (Administrador/Consulta).
+
+### Passo 1 — Authentication Scheme "Oracle APEX Accounts"
+
+**Correção confirmada por print em 2026-09-16, versão 26.1.3**: a documentação mais antiga (21.x-24.x)
+chama esse tipo de "Application Express Accounts" — nessa versão o nome mudou para **"Oracle APEX
+Accounts"**. Também a tela de criação não é uma "galeria" em etapas — é um formulário direto:
+
+1. Application home → **Shared Components**.
+2. Seção **Security** → **Authentication Schemes**.
+3. **Create** — abre direto o formulário "Authentication Scheme" com campos **Name** e **Scheme
+   Type** (não uma galeria de opções pré-configuradas).
+4. **Name**: qualquer nome descritivo (ex.: "Contas de Usuário").
+5. **Scheme Type**: clicar no dropdown (que abre um painel lateral explicando cada tipo) e escolher
+   **"Oracle APEX Accounts"** — descrição oficial: "Oracle APEX Account Credentials are internal
+   user accounts that are created and managed in the Oracle APEX user repository."
+6. Clicar **"Create Authentication Scheme"** (canto superior direito).
+7. Depois de criado, **abrir o esquema** e clicar **"Make Current Scheme"** — um esquema novo não
+   fica ativo sozinho. **Ainda não confirmado por print se esse botão existe/tem esse nome exato
+   nessa versão** — verificar ao vivo quando chegar nesse passo.
+
+### Passo 2 — Criar os usuários (funcionários)
+
+**Administration** (menu no topo da Workspace home page) → **Manage Users and Groups** →
+**Create User**. Campos: Username, Email, First/Last Name, Password/Confirm Password. Pra um
+funcionário comum (não desenvolvedor): **"User is an administrator"** e **"User is a developer"**
+ambos **Off**.
+
+### Passo 3 — Feature "Access Control"
+
+**Create → Page → aba Feature → tile "Access Control"** (já confirmado que existe nessa versão,
+ver seção "Create a Page — abas do assistente" acima). Wizard: Starting Page Number, Page Group,
+Administration Page Preference (criar página nova ou reaproveitar uma existente). Cria:
+- Uma **Administration page** com região **Access Control** (subseções **Users** e **Access
+  Control**).
+- 3 papéis padrão: **Administrator**, **Contributor**, **Reader**.
+- 3 authorization schemes correspondentes: **Administration Rights**, **Contribution Rights**,
+  **Reader Rights**.
+
+Pra só 2 níveis (Administrador/Consulta), usar `Administrator` e `Reader`, ignorar `Contributor`.
+
+### Passo 4 — Atribuir papel a um usuário
+
+Na **Administration page** gerada no Passo 3 → região **Access Control** → subseção **Users** →
+adicionar o usuário (criado no Passo 2) e escolher o papel.
+
+### Passo 5 — Restringir uma página por papel
+
+Page Designer → aba **Rendering** → clicar no **título da página** (nó do topo da árvore, não uma
+região) → painel direito (Property Editor) → seção **Security** → campo **Authorization Scheme**
+→ escolher o esquema (ex.: `Administration Rights` pra só Administrador acessar) → **Save**. Se a
+seção Security não aparecer de cara, usar o campo de busca **Filter Properties**.
+
+Fontes:
+- https://docs.oracle.com/en/database/oracle/apex/23.1/htmdb/creating-an-authentication-scheme.html
+- https://docs.oracle.com/en/database/oracle/apex/24.2/htmdb/subscribing-to-an-authentication-scheme.html
+- https://docs.oracle.com/en/database/oracle/apex/23.2/aeadm/managing-users-in-a-workspace.html
+- https://docs.oracle.com/en/database/oracle/apex/24.1/htmdb/how-access-control-works.html
+- https://docs.oracle.com/en/database/oracle/apex/24.1/htmdb/creating-access-control-create-page-wizard.html
+- https://docs.oracle.com/en/database/oracle/apex/23.2/htmdb/attaching-an-authorization-scheme.html
+
 ## Pendências a confirmar (próxima vez que o usuário estiver na tela)
 
 - Confirmar por print se a barra de ferramentas da Page Designer no 26.1.3 é idêntica à

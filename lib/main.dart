@@ -38,7 +38,7 @@ Future<void> main() async {
         ChangeNotifierProvider(
             create: (_) => CaminhaoProvider(caminhaoService)),
       ],
-      child: const SalesProApp(),
+      child: const ErpSimplesApp(),
     ),
   );
 }
