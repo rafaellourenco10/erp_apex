@@ -196,24 +196,9 @@ class _PedidoCard extends StatelessWidget {
 
   const _PedidoCard({required this.pedido, required this.onTap});
 
-  ({Color bg, Color fg}) get _statusColors {
-    switch (pedido.status) {
-      case PedidoStatus.faturado:
-        return (bg: AppColors.primaryContainer, fg: Colors.white);
-      case PedidoStatus.pendente:
-        return (bg: AppColors.primaryFixed, fg: AppColors.onPrimaryFixedVariant);
-      case PedidoStatus.aprovado:
-        return (bg: AppColors.onTertiaryFixed, fg: Colors.white);
-      case PedidoStatus.entregue:
-        return (bg: AppColors.success, fg: Colors.white);
-      case PedidoStatus.cancelado:
-        return (bg: AppColors.errorContainer, fg: AppColors.onErrorContainer);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final statusColors = _statusColors;
+    final statusColors = pedido.status.colors;
     final cancelado = pedido.status == PedidoStatus.cancelado;
 
     return InkWell(

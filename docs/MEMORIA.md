@@ -62,6 +62,28 @@ detalhe):
 `flutter analyze`/`flutter test` limpos depois de tudo. Notas do Obsidian (`Pontos de Atenção.md`,
 `Paleta de Cores.md`, `Roadmap e Próximos Passos.md`) atualizadas junto.
 
+## Dashboard redesenhado — 2026-10-02
+
+Dashboard reescrito pra parecer "produto de verdade" (lente de portfólio): card hero escuro com
+faturamento total/ticket médio, grade 2×2 de KPIs, gráfico de vendas por mês (6 meses), barra
+segmentada de pedidos por status e de frota, lista compacta de caminhões e 5 pedidos recentes
+(tocáveis → `DetalhePedidoScreen`). **Sem lib de gráficos** — barras feitas com widgets nativos.
+Agregações isoladas em `lib/screens/dashboard/dashboard_resumo.dart` (puro, testado em
+`test/dashboard_resumo_test.dart`); widgets visuais em `dashboard_widgets.dart`. Cores de status
+de pedido saíram de `meus_pedidos_screen.dart` pro getter `PedidoStatus.colors` em
+`models/pedido.dart` (reuso). Cuidado: o projeto **não** está formatado com `dart format` —
+rodar nele em arquivos existentes gera diff gigante de ruído.
+
+**Paleta refeita (mesmo dia, 2 rodadas):** Pendente e Cancelado tinham fundos pálidos quase
+iguais → cada status de pedido ganhou matiz próprio em `PedidoStatus.color`
+(âmbar/azul/violeta/verde/vermelho; tokens `AppColors.warning`/`violet`), badges com fundo
+tingido 12% + texto na cor, todas ≥4.5:1 com branco. Laranja da marca `#BF360C` → `#C2410C`.
+Uma tentativa com AppBar azul-marinho foi **rejeitada pelo usuário** ("não ficou legal esse
+azul"; também achou o fundo "muito branco"). Versão final: neutros baseados no **Shopify
+Polaris** — fundo `#F1F1F1`, cards brancos, topo/escuros `#1A1A1A`, texto `#303030`/`#616161`,
+botões sem elevação; laranja só como acento. Notas do Obsidian (`Paleta de Cores.md`) ficam fora
+do repo e não foram atualizadas.
+
 ## Perfil do usuário / como trabalhar
 
 - Usuário: Rafael (autor dos commits do projeto; e-mail `ikutschenko@gmail.com`).

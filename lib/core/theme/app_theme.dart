@@ -64,7 +64,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.md),
           ),
-          elevation: 2,
+          elevation: 0,
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(

@@ -282,11 +282,11 @@ class _DetalhePedidoScreenState extends State<DetalhePedidoScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppColors.primaryFixedDim.withValues(alpha: 0.2),
+                  color: pedido.status.colors.bg,
                   borderRadius: BorderRadius.circular(AppRadius.full),
                 ),
                 child: Text(pedido.status.label,
-                    style: AppTextStyles.labelMd(color: AppColors.onPrimaryContainer)),
+                    style: AppTextStyles.labelMd(color: pedido.status.colors.fg)),
               ),
             ],
           ),

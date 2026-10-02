@@ -1,3 +1,7 @@
+import 'package:flutter/material.dart';
+
+import '../core/constants/app_colors.dart';
+
 enum PedidoStatus { pendente, aprovado, faturado, entregue, cancelado }
 
 extension PedidoStatusLabel on PedidoStatus {
@@ -15,6 +19,27 @@ extension PedidoStatusLabel on PedidoStatus {
         return 'Cancelado';
     }
   }
+
+  /// Distinct hue per status, used solid in charts and as text over a light
+  /// tint in badges (see [colors]).
+  Color get color {
+    switch (this) {
+      case PedidoStatus.pendente:
+        return AppColors.warning;
+      case PedidoStatus.aprovado:
+        return AppColors.tertiary;
+      case PedidoStatus.faturado:
+        return AppColors.violet;
+      case PedidoStatus.entregue:
+        return AppColors.success;
+      case PedidoStatus.cancelado:
+        return AppColors.error;
+    }
+  }
+
+  /// Badge colors: light tint background with the status hue as text.
+  ({Color bg, Color fg}) get colors =>
+      (bg: color.withValues(alpha: 0.12), fg: color);
 }
 
 /// Parses the `status` column (e.g. "PENDENTE", "APROVADO") returned by

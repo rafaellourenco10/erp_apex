@@ -12,7 +12,20 @@ class Formatters {
 
   static String currency(num value) => _currency.format(value);
 
+  static final NumberFormat _currencyCompact = NumberFormat.compactCurrency(
+    locale: 'pt_BR',
+    symbol: 'R\$',
+  );
+
+  static final DateFormat _month = DateFormat('MMM', 'pt_BR');
+
+  /// Short currency for tight spaces like chart labels, e.g. "R$ 12,5 mil".
+  static String currencyCompact(num value) => _currencyCompact.format(value);
+
   static String date(DateTime value) => _date.format(value);
+
+  /// Abbreviated month name, e.g. "set."
+  static String month(DateTime value) => _month.format(value);
 
   /// Formats a Brazilian phone number, e.g. "43991112222" -> "(43) 99111-2222".
   static String phone(String? raw) {
