@@ -84,6 +84,38 @@ Polaris** — fundo `#F1F1F1`, cards brancos, topo/escuros `#1A1A1A`, texto `#30
 botões sem elevação; laranja só como acento. Notas do Obsidian (`Paleta de Cores.md`) ficam fora
 do repo e não foram atualizadas.
 
+## Auditoria do app APEX rodando (via Claude in Chrome) — 2026-11-17
+
+Claude abriu o App Builder e o app rodando no Chrome do usuário (o usuário faz o login; Claude
+não digita senha). Achados, sob a lente de portfólio:
+- **Home (página 1) está vazia** — é a primeira coisa que um recrutador vê.
+- Menu com nomes de rascunho: "Pedidos n1/n2/n3", "Itens_Pedido", "Caminhoes" (sem acento);
+  título da página 13 é "Pedidos_DrillDown" e a coluna se chama "Id Cliente" mas mostra o nome.
+- **Top Clientes (pág. 12)**: a query soma `valor_total` de **todos** os pedidos, inclusive
+  CANCELADOS (falta `WHERE pe.status <> 'CANCELADO'`); cor da série `#90ee76` (verde claro)
+  destoa do tema. Na primeira carga mostrou "No data to display", depois de F5 apareceu
+  normal — não reproduzido.
+- Relatório de Vendas (pág. 17) lista 5 pedidos, mas existem 9 — investigar a query/filtro.
+- Caminhões (pág. 20) não tem lápis de editar por linha (Form_Caminhoes, pág. 22, existe);
+  status aparece cru (`EM_CARGA`, `EM_ROTA`).
+- Clientes (pág. 2) não mostra CPF/CNPJ nem cidade, apesar das colunas já existirem.
+- App Builder avisa "Update to Universal Theme Available" (Refresh Theme).
+
+## Funcionalidade: Mapa de Clientes (APEX) — ✅ concluído, 2026-11-17
+
+Escolhida pelo usuário como "o que mais chama atenção" na demo. Tudo testado pelo usuário:
+- **Banco**: `backend/oracle/13_adiciona_coordenadas_clientes.sql` (colunas `LATITUDE`/
+  `LONGITUDE` em CLIENTES + coordenadas fictícias dos 6 clientes, região de Maringá). Aplicado.
+- **Página 18 "Mapa de Clientes"** (Create Page → Map, Points, Two Numeric Columns), no menu
+  lateral. Fonte da camada = SQL com qtd de pedidos e total comprado sem cancelados, já
+  formatado em R$ (query no rodapé do script 13).
+- Tooltip HTML (nome, cidade, pedidos, total), zoom pela rodinha ligado (vem desligado).
+- **Clicar no ponto abre a ficha do cliente**: camada → Link → Redirect to Page in this
+  Application → página 3, `P3_ID_CLIENTE = &ID_CLIENTE.`, Clear Cache 3.
+
+Usuário está aprendendo APEX: ensinar passo a passo, SQL no chat dizendo onde colar, conferir
+a UI por print/doc antes de mandar clicar.
+
 ## Perfil do usuário / como trabalhar
 
 - Usuário: Rafael (autor dos commits do projeto; e-mail `ikutschenko@gmail.com`).

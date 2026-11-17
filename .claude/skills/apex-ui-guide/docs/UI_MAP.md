@@ -248,10 +248,20 @@ Fontes:
 - https://docs.oracle.com/en/database/oracle/apex/24.1/htmdb/creating-access-control-create-page-wizard.html
 - https://docs.oracle.com/en/database/oracle/apex/23.2/htmdb/attaching-an-authorization-scheme.html
 
-## Pendências a confirmar (próxima vez que o usuário estiver na tela)
+## Page Designer 26.1.3 — confirmado ao vivo via Claude in Chrome em 2026-11-17
 
-- Confirmar por print se a barra de ferramentas da Page Designer no 26.1.3 é idêntica à
-  documentada pra 24.1 (posição exata do ícone Utilities).
+- Barra superior (esquerda → direita): seta voltar, "Application 166105", nome da página,
+  seletor de página (nº + setas), cadeado, Undo, Redo, **"+"▾ (Create)**, **chave inglesa▾
+  (Utilities)**, ícone de Shared Components, **Save**, **Run** (botão azul ▶).
+- Painel esquerdo: abas Rendering / Dynamic Actions / Processing / Page Shared Components;
+  árvore Pre-Rendering → Components (Breadcrumb Bar, Body…) → Post-Rendering.
+- Centro: Layout / Page Search / Help; embaixo, galeria Regions / Items / Buttons.
+- Direita: Property Editor (com Filter). Num gráfico: clicar em **Series 1** (dentro de
+  Series) mostra Source → SQL Query; clicar na região mostra abas Region / Attributes.
+- ⚠️ No app rodando, **não navegar digitando a URL sem `?session=`** — cai no login de novo.
+  Navegar clicando no menu lateral.
+
+## Pendências a confirmar (próxima vez que o usuário estiver na tela)
 - Confirmar visualmente onde fica "Application → Utilities" (o menu geral do app, fora da Page
   Designer) nessa versão.
 - ~~Confirmar se o wizard "Interactive Report" oferece, nalgum passo, a opção de já criar o Form
@@ -261,6 +271,44 @@ Fontes:
   mas o resultado final é parecido: marcar essa opção cria um form (sempre como Modal Dialog) além
   do relatório. Ainda não confirmado por print no 26.1.3 do usuário se o nome/posição do campo é
   idêntico.
+
+## Create Page wizard — Map, passo a passo
+
+**Confirmado via documentação oficial (APEX 24.2) em 2026-11-17** — ainda não por print no
+26.1.3. Fonte: https://docs.oracle.com/en/database/oracle/apex/24.2/htmdb/adding-map-to-new-page.html
+
+1. Application Home → **Create Page** → aba **Component** → tile **Map**.
+2. **Page Definition**: Page Number, Name, Page Mode.
+3. **Data Source**: Local Database. **Source Type**: Table (Table/View Owner + Name) ou
+   SQL Query (campo "Enter a SQL SELECT statement"). **Navigation**: Use Breadcrumb / Use
+   Navigation.
+4. **Next** → **Map Style**: Points, Lines, Polygons, Heat Map, Extruded Polygons.
+5. **Map Attributes** → **Geometry Column Type**: *Geometry Column* (SDO_GEOMETRY ou GeoJSON em
+   VARCHAR2/CLOB) ou **Two Numeric Columns** (só Points/Heat Map — longitude + latitude; nomes
+   exatos dos campos seguintes não estão na doc). **Confirmado pelo usuário em 2026-11-17
+   (26.1.3):** abaixo dos campos de latitude/longitude o wizard mostra **Tooltip Column**.
+   Flag opcional **Create a Faceted Search Page**.
+6. **Create Page**.
+
+**Confirmado por print em 2026-11-17 (26.1.3):** após o wizard, a árvore fica Body → região
+"Mapa de Clientes" (ícone de alfinete) → **Layers** → camada "Mapa de Clientes". O wizard chegou
+a criar a região **duplicada** (provável duplo clique em Create Page) — conferir a árvore depois
+de criar. O mapa já abre enquadrado nos pontos (não precisou configurar zoom inicial).
+
+**Confirmado pelo usuário em 2026-11-17 (26.1.3), funcionou:**
+- Tooltip rico: selecionar a **camada** → Filter `tooltip` → ligar **Advanced Formatting** →
+  **HTML Expression** com `&COLUNA.`.
+- Zoom pela rodinha (vem desligado): selecionar a **região** → aba **Attributes** → Filter
+  `mousewheel` → **Mousewheel Zoom** (seção Controls).
+- A query de uma camada fica na própria camada (Source → SQL Query), não na região.
+- **Confirmado por print em 2026-11-17 (26.1.3)** (a doc 24.2 não mostrava): a camada tem seção
+  **Link** (campo **Type**, começa "- Select -") e seção **Info Window** (Advanced Formatting,
+  Title Column, Body Column), que é o balão que abre no clique.
+
+Depois, no Page Designer, a camada (layer) tem: **Column Mapping** (Geometry Column Data
+Type…), **Tooltip** (Tooltip Column, ou Advanced Formatting + HTML Expression com `&COLUNA.`),
+**Zoom Levels** (Minimum/Maximum 1–18). Posição/zoom inicial do mapa: provavelmente na aba
+**Attributes** da região Map, **nome do campo não confirmado**.
 
 ## Create Page wizard — Interactive Report, passo a passo
 
