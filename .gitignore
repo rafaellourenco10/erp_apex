@@ -53,3 +53,4 @@ app.*.map.json
 .env.*.local
 .claude-flow/
 .swarm/
+.omc/

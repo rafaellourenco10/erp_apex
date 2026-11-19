@@ -9,6 +9,7 @@ import '../../core/utils/formatters.dart';
 import '../../core/widgets/app_bottom_nav_bar.dart';
 import '../../core/widgets/state_views.dart';
 import '../../models/pedido.dart';
+import '../../providers/cliente_provider.dart';
 import '../../providers/historico_pedidos_provider.dart';
 import '../../services/pdf_report_service.dart';
 import '../../services/pedido_service.dart';
@@ -71,6 +72,7 @@ class _RelatoriosScreenState extends State<RelatoriosScreen> {
         pedidos: pedidosFiltrados,
         inicio: _periodo.start,
         fim: _periodo.end,
+        filtro: _filtroStatus?.label,
       );
       await Printing.sharePdf(bytes: bytes, filename: 'relatorio_vendas.pdf');
     } catch (_) {
@@ -87,8 +89,15 @@ class _RelatoriosScreenState extends State<RelatoriosScreen> {
   Future<void> _exportarPedido(Pedido pedido) async {
     setState(() => _exportandoPedidoId = pedido.idPedido);
     try {
+      final clientes = context.read<ClienteProvider>();
       final itens = await context.read<PedidoService>().getItensPedido(pedido.idPedido);
-      final bytes = await PdfReportService.gerarPedido(pedido.copyWith(itens: itens));
+      // Client details (CPF/CNPJ, address) are optional in the receipt —
+      // load the list only if it hasn't been fetched yet in this session.
+      if (clientes.buscarPorId(pedido.idCliente) == null) await clientes.carregar();
+      final bytes = await PdfReportService.gerarPedido(
+        pedido.copyWith(itens: itens),
+        cliente: clientes.buscarPorId(pedido.idCliente),
+      );
       await Printing.sharePdf(bytes: bytes, filename: 'pedido_${pedido.idPedido}.pdf');
     } catch (_) {
       if (mounted) {

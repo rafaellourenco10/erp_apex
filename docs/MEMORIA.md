@@ -84,6 +84,18 @@ Polaris** — fundo `#F1F1F1`, cards brancos, topo/escuros `#1A1A1A`, texto `#30
 botões sem elevação; laranja só como acento. Notas do Obsidian (`Paleta de Cores.md`) ficam fora
 do repo e não foram atualizadas.
 
+## PDFs de relatório redesenhados — 2026-10-02
+
+`PdfReportService` reescrito (mesma API pública + params opcionais `cliente:` e `filtro:`).
+Visual em `lib/services/pdf_layout.dart` (cabeçalho escuro com marca + faixa laranja, rodapé
+com "Página X de Y", KPIs, tabela zebrada com cabeçalho que se repete entre páginas, gráfico de
+barras, badges de status). Agregações em `lib/services/resumo_periodo.dart` (testado em
+`test/resumo_periodo_test.dart`): faturamento sem cancelados, série por dia (≤31 dias) ou por mês,
+quebra por status, top 5 clientes. Comprovante agora busca o `Cliente` completo (CPF/CNPJ,
+endereço, contato) via `ClienteProvider.buscarPorId` e tem linha de assinatura de recebimento.
+Pegadinhas do pacote `pdf`: **cor com alpha é ignorada no preenchimento** (misturar com branco à
+mão) e a fonte padrão Helvetica só cobre Latin-1 (evitar "–", "≥" etc. nos textos do PDF).
+
 ## Auditoria do app APEX rodando (via Claude in Chrome) — 2026-11-17
 
 Claude abriu o App Builder e o app rodando no Chrome do usuário (o usuário faz o login; Claude
